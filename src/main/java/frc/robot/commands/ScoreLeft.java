@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.auto.AutoCoralIntake;
 import frc.robot.commands.auto.AutoShootCoral;
-import frc.robot.commands.swerve.AlignToReefTagRelative;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.superstructure.Arm;
