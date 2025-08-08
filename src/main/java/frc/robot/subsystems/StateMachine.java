@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NessieState;
 import frc.robot.commands.position.SetArmPosition;
 import frc.robot.commands.position.SetElevatorPosition;
-import frc.robot.subsystems.superstructure.Arm;
-import frc.robot.subsystems.superstructure.Elevator;
 
 public class StateMachine extends SubsystemBase {
 

@@ -3,7 +3,7 @@ package frc.robot.commands.auto;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.superstructure.EndEffector;
+import frc.robot.subsystems.EndEffector;
 
 public class AutoCoralIntake extends Command {
   

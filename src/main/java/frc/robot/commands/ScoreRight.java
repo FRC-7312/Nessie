@@ -5,11 +5,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.auto.AutoCoralIntake;
 import frc.robot.commands.auto.AutoShootCoral;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.superstructure.Arm;
-import frc.robot.subsystems.superstructure.Elevator;
-import frc.robot.subsystems.superstructure.EndEffector;
 
 public class ScoreRight extends SequentialCommandGroup {
 

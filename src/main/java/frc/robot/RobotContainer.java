@@ -23,11 +23,11 @@ import frc.robot.commands.endeffector.IntakeAndHoldAlgae;
 import frc.robot.commands.endeffector.IntakeAndHoldCoral;
 import frc.robot.commands.endeffector.ShootAlgae;
 import frc.robot.commands.endeffector.ShootCoral;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.superstructure.Arm;
-import frc.robot.subsystems.superstructure.Elevator;
-import frc.robot.subsystems.superstructure.EndEffector;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
