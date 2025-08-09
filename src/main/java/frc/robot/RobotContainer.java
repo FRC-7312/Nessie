@@ -3,26 +3,18 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.LimelightHelpers;
-import frc.robot.commands.AlignToReefTagRelative;
-import frc.robot.commands.ChangeSpeedMultiplier;
-import frc.robot.commands.ScoreLeft;
-import frc.robot.commands.ScoreRight;
-import frc.robot.commands.TeleopSwerve;
-import frc.robot.commands.auto.AutoIntake;
-import frc.robot.commands.auto.AutoShootCoral;
-import frc.robot.commands.endeffector.IntakeAndHoldAlgae;
-import frc.robot.commands.endeffector.IntakeAndHoldCoral;
-import frc.robot.commands.endeffector.ShootAlgae;
-import frc.robot.commands.endeffector.ShootCoral;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -49,76 +41,30 @@ public class RobotContainer {
     private final EndEffector endEffector = new EndEffector();
     private final StateMachine stateMachine = new StateMachine(elevator, arm);
 
-    /* Commands */
-    private final IntakeAndHoldCoral intakeAndHoldCoral;
-    private final IntakeAndHoldAlgae intakeAndHoldAlgae;
-    private final ShootAlgae shootAlgae;
-    private final ShootCoral shootCoral;
-    private final AutoShootCoral autoShootCoral;
-    private final ChangeSpeedMultiplier changeSpeedMultiplier;
-    private final ScoreLeft scoreLeft;
-    private final ScoreRight scoreRight;
-    private final AutoIntake autoIntake;
-
     /* Autos */
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
 
-        swerve.setDefaultCommand(
-            new TeleopSwerve(
-                swerve,
-                () -> -driver.getRawAxis(leftY), 
-                () -> -driver.getRawAxis(leftX), 
-                () -> -driver.getRawAxis(rightX), 
-                () -> driver.getHID().getXButton(),
-                () -> driver.getHID().getRightBumperButton()
-            )
-        );
-
-        intakeAndHoldAlgae = new IntakeAndHoldAlgae(endEffector);
-        intakeAndHoldAlgae.addRequirements(endEffector);
-        intakeAndHoldCoral = new IntakeAndHoldCoral(endEffector);
-        intakeAndHoldCoral.addRequirements(endEffector);
-        shootAlgae = new ShootAlgae(endEffector);
-        shootAlgae.addRequirements(endEffector);
-        shootCoral = new ShootCoral(endEffector);
-        shootCoral.addRequirements(endEffector);
-        autoShootCoral = new AutoShootCoral(endEffector);
-        autoShootCoral.addRequirements(endEffector);
-        scoreLeft = new ScoreLeft(stateMachine, arm, elevator, swerve, endEffector);
-        scoreRight = new ScoreRight(stateMachine, arm, elevator, swerve, endEffector);
-        changeSpeedMultiplier = new ChangeSpeedMultiplier(swerve);
-        changeSpeedMultiplier.addRequirements(swerve);
-        autoIntake = new AutoIntake(stateMachine, endEffector);
-        autoIntake.addRequirements(stateMachine, endEffector);
-
-        /* register commands & autos */
-        NamedCommands.registerCommand("Algae Intake Low Position", new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_INTAKE_LOW)));
-        NamedCommands.registerCommand("Algae Intake High Position", new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_INTAKE_HIGH)));
-        NamedCommands.registerCommand("Algae Shoot Position", new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_SHOOT)));
-        NamedCommands.registerCommand("Stow Position", new InstantCommand(() -> stateMachine.requestState(StateMachine.STOW)));
-        NamedCommands.registerCommand("Score Left", scoreLeft.onlyIf(() -> LimelightHelpers.getTV("limelight-left")));
-        NamedCommands.registerCommand("Score Right", scoreRight.onlyIf(() -> LimelightHelpers.getTV("limelight-right")));
-        NamedCommands.registerCommand("Intake", autoIntake);
-
-        SmartDashboard.putData("Commands/Zero Elevator Encoder", new InstantCommand(() -> elevator.resetEncoder()));
-        SmartDashboard.putData("Commands/Zero Arm Encoder", new InstantCommand(() -> arm.resetEncoder()));
-
-        SmartDashboard.putData("Commands/Request Start State", new InstantCommand(() -> stateMachine.requestState(StateMachine.START)));
-        SmartDashboard.putData("Commands/Request Disengaged State", new InstantCommand(() -> stateMachine.requestState(StateMachine.DISENGAGED)));
-        SmartDashboard.putData("Commands/Request Stow State", new InstantCommand(() -> stateMachine.requestState(StateMachine.STOW)));
-        SmartDashboard.putData("Commands/Request L1 Sate", new InstantCommand(() -> stateMachine.requestState(StateMachine.L1)));
-        SmartDashboard.putData("Commands/Request L2 Sate", new InstantCommand(() -> stateMachine.requestState(StateMachine.L2)));
-        SmartDashboard.putData("Commands/Request L3 Sate", new InstantCommand(() -> stateMachine.requestState(StateMachine.L3)));
-        SmartDashboard.putData("Commands/Request L4 Sate", new InstantCommand(() -> stateMachine.requestState(StateMachine.L4)));
-        SmartDashboard.putData("Right Forward Position", new AlignToReefTagRelative("right forward", swerve));
-        SmartDashboard.putData("Left Forward Position", new AlignToReefTagRelative("left forward", swerve));
-        SmartDashboard.putData("Right Back Position", new AlignToReefTagRelative("right back", swerve));
-        SmartDashboard.putData("Left Back Position", new AlignToReefTagRelative("left back", swerve));
+        /* Command Configuration */
+        NamedCommands.registerCommand("Stow Position", stateMachine.requestStateCommand(StateMachine.STOW));
+        NamedCommands.registerCommand("Coast Position", stateMachine.requestStateCommand(StateMachine.COAST));
+        NamedCommands.registerCommand("L1 Position", stateMachine.requestStateCommand(StateMachine.L1));
+        NamedCommands.registerCommand("L2 Position", stateMachine.requestStateCommand(StateMachine.L2));
+        NamedCommands.registerCommand("L3 Position", stateMachine.requestStateCommand(StateMachine.L3));
+        NamedCommands.registerCommand("L4 Position", stateMachine.requestStateCommand(StateMachine.L4));
+        NamedCommands.registerCommand("Intake", new SequentialCommandGroup(
+            stateMachine.requestStateCommand(StateMachine.STOW),
+            new WaitCommand(.2),
+            stateMachine.requestStateCommand(StateMachine.INTAKE),
+            endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE),
+            new WaitCommand(1),
+            endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE),
+            stateMachine.requestStateCommand(StateMachine.STOW)
+        ));
 
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto", autoChooser);
+        SmartDashboard.putData("Selected Auto", autoChooser);
 
         configureButtonBindings();
 
@@ -126,46 +72,95 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
-        /* driver controls */
+        /* Driver */
 
-        driver.b().onTrue(changeSpeedMultiplier);
-        driver.povUp().onTrue(new InstantCommand(() -> swerve.zeroHeading()));
+        // driver left y to move forward/backward
+        // driver left x to strafe left/right
+        // driver right x to rotate left/right
+        // driver left bumper press to x lock
+        // driver right bumper press to drive robot-centric
+        swerve.setDefaultCommand(
+            new Command() {
+                {
+                    addRequirements(swerve);
+                }
 
-        driver.leftTrigger().onTrue(
-            new ScoreLeft(stateMachine, arm, elevator, swerve, endEffector)
-                .onlyIf(() -> LimelightHelpers.getTV("limelight-left"))
+                @Override
+                public void execute() {
+                    double translationVal = MathUtil.applyDeadband(-driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND);
+                    double strafeVal = MathUtil.applyDeadband(-driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND);
+                    double rotationVal = MathUtil.applyDeadband(-driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND);
+
+                    boolean lock = driver.getHID().getLeftBumperButton();
+                    boolean robotCentric = driver.getHID().getRightBumperButton();
+
+                    if (!lock) {
+                        swerve.drive(
+                            new Translation2d(translationVal, strafeVal).times(Constants.SwerveConstants.maxSpeed),
+                            rotationVal * Constants.SwerveConstants.maxAngularVelocity,
+                            !robotCentric,
+                            true
+                        );
+                    } else {
+                        swerve.setX();
+                    }
+                }
+
+                @Override
+                public boolean isFinished() {
+                    return false;
+                }
+            }
         );
-        driver.rightTrigger().onTrue(
-            new ScoreRight(stateMachine, arm, elevator, swerve, endEffector)
-                .onlyIf(() -> LimelightHelpers.getTV("limelight-right"))
-        );
-        driver.leftBumper().onTrue(
+
+        // driver pov up to swap from fast mode to slow mode
+        driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
+        // driver pov right to zero heading for swerve
+        driver.povDown().onTrue(swerve.zeroHeading());
+
+        // driver left trigger to intake algae, and hold it when released
+        driver.leftTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_INTAKE_VOLTAGE));
+        driver.leftTrigger().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_HOLD_VOLTAGE));
+
+        // driver right trigger to shoot algae
+        driver.rightTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_SHOOT_VOLTAGE));
+
+        // driver a to request algae taxi state
+        // driver b to request algae intake low state
+        // driver y to request algae intake high state
+        // driver x to request algae process state
+        driver.a().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_TAXI));
+        driver.b().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_LOW));
+        driver.y().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_HIGH));
+        driver.x().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_PROCESS));
+
+        /* Operator */
+
+        // operator a to request L1 state
+        // operator b to request L2 state
+        // operator y to request L3 state
+        // operator x to request L4 state
+        operator.a().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L1)));
+        operator.b().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L2)));
+        operator.y().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L3)));
+        operator.x().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L4)));
+
+        // operator left bumper press to intake coral
+        operator.leftBumper().onTrue(
             new InstantCommand(() -> stateMachine.requestState(StateMachine.STOW))
             .andThen(new WaitCommand(.2)).andThen(() -> stateMachine.requestState(StateMachine.INTAKE))
         );
-        driver.leftBumper().whileTrue(intakeAndHoldCoral);
-        driver.leftBumper().onFalse(
-            new InstantCommand(() -> stateMachine.requestState(StateMachine.INTAKE_CLEARANCE))
+        operator.leftBumper().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE));
+        operator.leftBumper().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE)
+            .andThen(stateMachine.requestStateCommand(StateMachine.INTAKE_CLEARANCE))
             .andThen(new WaitCommand(.2)).andThen(() -> stateMachine.requestState(StateMachine.STOW))
         );
 
-        /* operator controls */
+        // operator left trigger to stow
+        operator.leftTrigger().onTrue(stateMachine.requestStateCommand(StateMachine.STOW));
 
-        operator.a().onTrue(new InstantCommand(() -> stateMachine.setDesiredLevel(StateMachine.L1)));
-        operator.b().onTrue(new InstantCommand(() -> stateMachine.setDesiredLevel(StateMachine.L2)));
-        operator.y().onTrue(new InstantCommand(() -> stateMachine.setDesiredLevel(StateMachine.L3)));
-        operator.x().onTrue(new InstantCommand(() -> stateMachine.setDesiredLevel(StateMachine.L4)));
-
-        operator.povUp().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_SHOOT)));
-        operator.povRight().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_INTAKE_HIGH)));
-        operator.povLeft().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_INTAKE_LOW)));
-        operator.povDown().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.ALGAE_PROCESS)));
-
-        operator.leftBumper().whileTrue(intakeAndHoldAlgae);
-        operator.rightBumper().whileTrue(shootAlgae);
-
-        operator.leftTrigger().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.STOW)));
-        operator.rightTrigger().whileTrue(shootCoral);
+        // operator right trigger to shoot coral
+        operator.rightTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_SHOOT_VOLTAGE));
 
     }
 

@@ -15,10 +15,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
@@ -70,10 +70,19 @@ public class Swerve extends SubsystemBase {
             },
             this
         );
+
+        System.out.println("Swerve subsystem initialized");
     }
 
-    public void setSpeedMultiplier(double speedMultiplier){
-        this.speedMultiplier = speedMultiplier;
+    public Command changeSpeedMultiplierCommand() {
+        return runOnce(() -> {
+            if(speedMultiplier == 1.0){
+                speedMultiplier = 0.25;
+            } else {
+                speedMultiplier = 1.0;
+            }
+            System.out.println("Swerve speed multiplier changed to: " + speedMultiplier);
+        });
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -152,18 +161,10 @@ public class Swerve extends SubsystemBase {
         swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), heading));
     }
 
-    public void zeroHeading(){
-        swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
-    }
-
-    public void autoHeadingFix(){
-          var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-            if(alliance.get() == DriverStation.Alliance.Red){
-                double angle = getHeading().getDegrees() > 0? getHeading().getDegrees()-180 : getHeading().getDegrees()+180 ;
-                setHeading(new Rotation2d(Units.degreesToRadians(angle)));
-             }
-         }
+    public Command zeroHeading(){
+        return runOnce(() -> {
+            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        });
     }
 
     public Rotation2d getGyroYaw() {
@@ -189,11 +190,6 @@ public class Swerve extends SubsystemBase {
         swerveOdometry.update(getGyroYaw(), getModulePositions());   
         SmartDashboard.putData("Swerve/Odometry", odometry);
         SmartDashboard.putBoolean("Swerve/Fast Mode", speedMultiplier == 1.00);
-        
-    }
-
-    public double getSpeedMultiplier() {
-        return speedMultiplier;
     }
 
 }
