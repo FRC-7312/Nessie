@@ -7,7 +7,6 @@ import frc.robot.Constants;
 public class RevBlinkin extends SubsystemBase {
   Spark blinkin;
 
-  /** Creates a new RevBlinkin. */
   public RevBlinkin() {
     blinkin = new Spark(Constants.ID.BLINKIN_ID);
     System.out.println("RevBlinkin subsystem initialized");

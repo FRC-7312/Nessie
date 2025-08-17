@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.LimelightHelpers;
+import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -80,43 +81,22 @@ public class RobotContainer {
         // driver left bumper press to x lock
         // driver right bumper press to drive robot-centric
         swerve.setDefaultCommand(
-            new Command() {
-                {
-                    addRequirements(swerve);
-                }
-
-                @Override
-                public void execute() {
-                    double translationVal = MathUtil.applyDeadband(-driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND);
-                    double strafeVal = MathUtil.applyDeadband(-driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND);
-                    double rotationVal = MathUtil.applyDeadband(-driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND);
-
-                    boolean lock = driver.getHID().getLeftBumperButton();
-                    boolean robotCentric = driver.getHID().getRightBumperButton();
-
-                    if (!lock) {
-                        swerve.drive(
-                            new Translation2d(translationVal, strafeVal).times(Constants.SwerveConstants.maxSpeed),
-                            rotationVal * Constants.SwerveConstants.maxAngularVelocity,
-                            !robotCentric,
-                            true
-                        );
-                    } else {
-                        swerve.setX();
-                    }
-                }
-
-                @Override
-                public boolean isFinished() {
-                    return false;
-                }
-            }
+            new TeleopSwerve(
+                swerve,
+                () -> MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
+                () -> MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
+                () -> MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
+                driver.leftBumper()::getAsBoolean,
+                driver.rightBumper()::getAsBoolean,
+                driver.povRight()::getAsBoolean
+            )
         );
 
         // driver pov up to swap from fast mode to slow mode
         driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
         // driver pov right to zero heading for swerve
         driver.povDown().onTrue(swerve.zeroHeading());
+        
 
         // driver left trigger to intake algae, and hold it when released
         driver.leftTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_INTAKE_VOLTAGE));

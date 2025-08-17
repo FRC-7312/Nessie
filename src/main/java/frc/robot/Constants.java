@@ -3,6 +3,7 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,41 +30,22 @@ public final class Constants {
         public static final int BLINKIN_ID = 0;
     }
 
-    public static final class AlignmentConstants {
+    public static final class VisionConstants {
 
-        /* pid gains */
+        public static final String LEFT_LIMELIGHT_NAME = null;
+        public static final String RIGHT_LIMELIGHT_NAME = null;
 
-        public static final double X_P = 1;
-        public static final double Y_P = 1.5;
-        public static final double ROT_P = 0.01;
+        public static final PIDConstants translationPID = new PIDConstants(
+            0.1,
+            0,
+            0
+        );
+        public static final PIDConstants rotationPID = new PIDConstants(
+            0.1,
+            0,
+            0
+        );
 
-        /* tolerances */
-
-        public static final double ROT_TOLERANCE = 1;
-        public static final double X_TOLERANCE = 0.1;
-        public static final double Y_TOLERANCE = 0.1;
-
-        /* timing */ 
-
-        public static final double DONT_SEE_TAG_WAIT_TIME = 1;
-        public static final double POSE_VALIDATION_TIME = 0.3;
-
-        /* setpoints */
-
-        public static final double LEFT_X_FORWARD = 0.1788915605010106;
-        public static final double LEFT_X_BACK = -.3308;
-        public static final double LEFT_Y = 0.02602441270831135;
-        public static final double LEFT_ROT = -20.3848;
-
-        public static final double RIGHT_X_FORWARD = -0.44276;
-        public static final double RIGHT_X_BACK = -.9326;
-        public static final double RIGHT_Y = .20283;
-        public static final double RIGHT_ROT = -21.358181;
-
-        public static final double CENTER_X_FORWARD = 0;
-        public static final double CENTER_X_BACK = 0;
-        public static final double CENTER_Y = 0;
-        public static final double CENTER_ROT = 0;
     }
 
     public static final class IntakePivotConstants {

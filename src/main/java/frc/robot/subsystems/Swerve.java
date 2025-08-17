@@ -103,7 +103,7 @@ public class Swerve extends SubsystemBase {
         for(SwerveModule mod : swerveModules){
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
-    }    
+    }
 
     public ChassisSpeeds getRobotRelativeSpeeds(){
         return Constants.SwerveConstants.swerveKinematics.toChassisSpeeds(getModuleStates());

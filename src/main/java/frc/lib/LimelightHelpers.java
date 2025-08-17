@@ -1,4 +1,4 @@
-//LimelightHelpers v1.12 (REQUIRES LLOS 2025.0 OR LATER)
+//LimelightHelpers v1.11 (REQUIRES LLOS 2025.0 OR LATER)
 
 package frc.lib;
 
@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -486,21 +488,6 @@ public class LimelightHelpers {
             this.distToRobot = distToRobot;
             this.ambiguity = ambiguity;
         }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            RawFiducial other = (RawFiducial) obj;
-            return id == other.id &&
-                Double.compare(txnc, other.txnc) == 0 &&
-                Double.compare(tync, other.tync) == 0 &&
-                Double.compare(ta, other.ta) == 0 &&
-                Double.compare(distToCamera, other.distToCamera) == 0 &&
-                Double.compare(distToRobot, other.distToRobot) == 0 &&
-                Double.compare(ambiguity, other.ambiguity) == 0;
-        }
-
     }
 
     /**
@@ -586,22 +573,6 @@ public class LimelightHelpers {
             this.isMegaTag2 = isMegaTag2;
         }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            PoseEstimate that = (PoseEstimate) obj;
-            // We don't compare the timestampSeconds as it isn't relevant for equality and makes
-            // unit testing harder
-            return Double.compare(that.latency, latency) == 0
-                && tagCount == that.tagCount
-                && Double.compare(that.tagSpan, tagSpan) == 0
-                && Double.compare(that.avgTagDist, avgTagDist) == 0
-                && Double.compare(that.avgTagArea, avgTagArea) == 0
-                && pose.equals(that.pose)
-                && Arrays.equals(rawFiducials, that.rawFiducials);
-        }
-
     }
 
     /**
@@ -646,7 +617,7 @@ public class LimelightHelpers {
     static boolean profileJSON = false;
 
     static final String sanitizeName(String name) {
-        if ("".equals(name) || name == null) {
+        if (name == "" || name == null) {
             return "limelight";
         }
         return name;
@@ -1515,27 +1486,6 @@ public class LimelightHelpers {
     }
 
     /**
-     * Configures the complementary filter alpha value for IMU Assist Modes (Modes 3 and 4)
-     * 
-     * @param limelightName Name/identifier of the Limelight
-     * @param alpha Defaults to .001. Higher values will cause the internal IMU to converge onto the assist source more rapidly.
-     */
-    public static void SetIMUAssistAlpha(String limelightName, double alpha) {
-        setLimelightNTDouble(limelightName, "imuassistalpha_set", alpha);
-    }
-
-    
-    /**
-     * Configures the throttle value. Set to 100-200 while disabled to reduce thermal output/temperature.
-     * 
-     * @param limelightName Name/identifier of the Limelight
-     * @param throttle Defaults to 0. Your Limelgiht will process one frame after skipping <throttle> frames.
-     */
-    public static void SetThrottle(String limelightName, int throttle) {
-        setLimelightNTDouble(limelightName, "throttle_set", throttle);
-    }
-
-    /**
      * Sets the 3D point-of-interest offset for the current fiducial pipeline. 
      * https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-3d#point-of-interest-tracking
      *
@@ -1651,7 +1601,7 @@ public class LimelightHelpers {
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            if (snapshotName != null && !"".equals(snapshotName)) {
+            if (snapshotName != null && snapshotName != "") {
                 connection.setRequestProperty("snapname", snapshotName);
             }
 
@@ -1695,4 +1645,63 @@ public class LimelightHelpers {
 
         return results;
     }
+
+    /**
+     * Finds the closest AprilTag (Fiducial) target to the robot by checking two Limelight cameras.
+     *
+     * It combines the fiducial targets from both cameras and returns the one with the smallest
+     * distance to the robot's origin. The distance is calculated as the 3D norm of the target's
+     * translation in the robot's coordinate space. This is useful when you have multiple cameras
+     * facing the same direction and want to lock onto the nearest tag they can collectively see.
+     *
+     * @param limelightName1 The network table name of the first Limelight (e.g., "limelight-left").
+     * @param limelightName2 The network table name of the second Limelight (e.g., "limelight-right").
+     * @return The LimelightTarget_Fiducial object for the closest tag, or null if no tags are detected by either camera.
+     */
+    public static LimelightTarget_Fiducial getClosestFiducial(String limelightName1, String limelightName2) {
+        // Get the latest results from both Limelights, which contain all target data.
+        LimelightResults results1 = getLatestResults(limelightName1);
+        LimelightResults results2 = getLatestResults(limelightName2);
+
+        // Create a single list to hold all detected fiducials from both cameras.
+        List<LimelightTarget_Fiducial> allFiducials = new ArrayList<>();
+
+        // Add fiducials from the first camera if they exist.
+        if (results1 != null && results1.targets_Fiducials != null) {
+            allFiducials.addAll(Arrays.asList(results1.targets_Fiducials));
+        }
+
+        // Add fiducials from the second camera if they exist.
+        if (results2 != null && results2.targets_Fiducials != null) {
+            allFiducials.addAll(Arrays.asList(results2.targets_Fiducials));
+        }
+
+        // If the combined list is empty, it means no tags were seen.
+        if (allFiducials.isEmpty()) {
+            return null;
+        }
+
+        // Initialize variables to track the closest target found.
+        LimelightTarget_Fiducial closestTarget = null;
+        double minDistance = Double.MAX_VALUE;
+
+        // Iterate through every detected fiducial to find the closest one.
+        for (LimelightTarget_Fiducial target : allFiducials) {
+            // Get the pose of the target relative to the robot's center.
+            Pose3d targetPose = target.getTargetPose_RobotSpace();
+
+            // Calculate the straight-line distance (norm of the translation vector)
+            // from the robot's origin (0,0,0) to the target.
+            double distance = targetPose.getTranslation().getNorm();
+
+            // If this target is closer than the closest one found so far, update it.
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestTarget = target;
+            }
+        }
+
+        return closestTarget;
+    }
+    
 }
