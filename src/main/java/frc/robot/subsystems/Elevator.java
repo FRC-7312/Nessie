@@ -24,9 +24,9 @@ public class Elevator extends SubsystemBase {
     follower = new TalonFX(Constants.ID.ELEVATOR_FOLLOWER_ID);
     config = new TalonFXConfiguration();
 
-    config.Slot0.kP = 0;
-    config.Slot0.kI = 0;
-    config.Slot0.kD = 0;
+    config.Slot0.kP = Constants.ElevatorConstants.P;
+    config.Slot0.kI = Constants.ElevatorConstants.I;
+    config.Slot0.kD = Constants.ElevatorConstants.D;
 
     config.CurrentLimits.SupplyCurrentLimit = Constants.ElevatorConstants.CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;

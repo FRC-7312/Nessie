@@ -8,7 +8,7 @@ import frc.robot.NessieState;
 public class StateMachine extends SubsystemBase {
 
   public static final NessieState STOW = new NessieState( // done
-    "Stow", 0, 0, 0);
+    "Stow", 14.21, 30, 0);
   public static final NessieState L1 = new NessieState(
     "L1", 0, 0, 0);
   public static final NessieState L2 = new NessieState( // done

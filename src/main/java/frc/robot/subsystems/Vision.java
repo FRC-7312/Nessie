@@ -16,20 +16,20 @@ public class Vision extends SubsystemBase {
   public Vision(Swerve swerve) {
 
     LimelightHelpers.setCameraPose_RobotSpace(Constants.VisionConstants.LEFT_LIMELIGHT_NAME, 
-      0.5,    // Forward offset (meters)
-      0.0,    // Side offset (meters)
-      0.5,    // Height offset (meters)
-      0.0,    // Roll (degrees)
-      30.0,   // Pitch (degrees)
+      0.1817,    // Forward offset (meters)
+      -0.0499,    // Side offset (meters)
+      0.1859,    // Height offset (meters)
+      -22.500000,    // Roll (degrees)
+      14.432786,   // Pitch (degrees)
       0.0     // Yaw (degrees)
     );
 
     LimelightHelpers.setCameraPose_RobotSpace(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME, 
-      0.5,    // Forward offset (meters)
-      0.0,    // Side offset (meters)
-      0.5,    // Height offset (meters)
-      0.0,    // Roll (degrees)
-      30.0,   // Pitch (degrees)
+      0.1817,    // Forward offset (meters)
+      0.0499,    // Side offset (meters)
+      0.1859,    // Height offset (meters)
+      22.500000,    // Roll (degrees)
+      14.432786,   // Pitch (degrees)
       0.0     // Yaw (degrees)
     );
 
@@ -39,24 +39,39 @@ public class Vision extends SubsystemBase {
   public void periodic() { // [x, y, z, roll, pitch, yaw]
     double[] leftBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
     double[] rightBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/x", leftBotPose[0]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/y", leftBotPose[1]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/z", leftBotPose[2]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/roll", leftBotPose[3]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/pitch", leftBotPose[4]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Left/yaw", leftBotPose[5]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/x", rightBotPose[0]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/y", rightBotPose[1]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/z", rightBotPose[2]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/roll", rightBotPose[3]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/pitch", rightBotPose[4]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Right/yaw", rightBotPose[5]);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/x", (leftBotPose[0] + rightBotPose[0]) / 2.0);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/y", (leftBotPose[1] + rightBotPose[1]) / 2.0);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/z", (leftBotPose[2] + rightBotPose[2]) / 2.0);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/roll", (leftBotPose[3] + rightBotPose[3]) / 2.0);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/pitch", (leftBotPose[4] + rightBotPose[4]) / 2.0);
-    SmartDashboard.putNumber("Vision/BotPoseTargetSpace/Average/yaw", (leftBotPose[5] + rightBotPose[5]) / 2.0);
+    SmartDashboard.putNumber("Vision/Closest Valid Target ID", LimelightHelpers.getClosestFiducial(Constants.VisionConstants.LEFT_LIMELIGHT_NAME, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME).fiducialID);
+    if(leftBotPose != null && rightBotPose != null) {
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/X", (leftBotPose[0] + rightBotPose[0]) / 2.0);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/Y", (leftBotPose[1] + rightBotPose[1]) / 2.0);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/Z", (leftBotPose[2] + rightBotPose[2]) / 2.0);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/Roll", (leftBotPose[3] + rightBotPose[3]) / 2.0);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/Pitch", (leftBotPose[4] + rightBotPose[4]) / 2.0);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Average/Yaw", (leftBotPose[5] + rightBotPose[5]) / 2.0);
+    }
+    if(leftBotPose != null) {
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/X", leftBotPose[0]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/Y", leftBotPose[1]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/Z", leftBotPose[2]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/Roll", leftBotPose[3]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/Pitch", leftBotPose[4]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Left/Yaw", leftBotPose[5]);
+    }
+    if(rightBotPose != null) {
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/X", rightBotPose[0]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/Y", rightBotPose[1]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/Z", rightBotPose[2]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/Roll", rightBotPose[3]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/Pitch", rightBotPose[4]);
+      SmartDashboard.putNumber("Vision/Bot Pose Target Space/Right/Yaw", rightBotPose[5]);
+    }
   }
-
 }
+
+/*
+ * VISION TODO
+ * 
+ * - calibrate cameras
+ * - set camera pipeline
+ * - test cameras locally
+ * 
+ */

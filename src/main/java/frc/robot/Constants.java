@@ -93,17 +93,14 @@ public final class Constants {
         public static final double P = 1;
         public static final double I = .1;
         public static final double D = 0;
-        public static final double G = 0.037109375;
-        public static final double TOLERANCE = .04;
-        public static final double FORWARD_LIMIT = 0;
+        public static final double FORWARD_LIMIT = 48.98;
         public static final double REVERSE_LIMIT = 0;
     }
 
     public static final class ArmConstants{
-        public static final int CURRENT_LIMIT = 30;
-        public static final double TOLERANCE = .01;
-        public static final double FORWARD_LIMIT = 0;
-        public static final double REVERSE_LIMIT = .0;
+        public static final int CURRENT_LIMIT = 40;
+        public static final double FORWARD_LIMIT = 58.21;
+        public static final double REVERSE_LIMIT = -3.06;
     }
 
     public static final class SwerveConstants {

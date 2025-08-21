@@ -22,7 +22,7 @@ public class Arm extends SubsystemBase {
     motor = new TalonFX(Constants.ID.ARM_PIVOT_ID);
     config = new TalonFXConfiguration();
 
-    config.Slot0.kP = 0;
+    config.Slot0.kP = 1;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -42,6 +42,8 @@ public class Arm extends SubsystemBase {
 
     SmartDashboard.putData("Arm/Set Coast Mode", setCoastCommand());
     SmartDashboard.putData("Arm/Reset Position", resetPositionCommand());
+
+    resetPosition();
 
     System.out.println("Arm subsystem initialized");
   }

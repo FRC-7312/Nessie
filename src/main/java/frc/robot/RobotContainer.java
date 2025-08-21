@@ -21,6 +21,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Vision;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
@@ -41,6 +42,7 @@ public class RobotContainer {
     private final Elevator elevator = new Elevator();
     private final EndEffector endEffector = new EndEffector();
     private final StateMachine stateMachine = new StateMachine(elevator, arm);
+    private final Vision vision = new Vision(swerve);
 
     /* Autos */
     private final SendableChooser<Command> autoChooser;
@@ -83,9 +85,9 @@ public class RobotContainer {
         swerve.setDefaultCommand(
             new TeleopSwerve(
                 swerve,
-                () -> MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
-                () -> MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
-                () -> MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
+                () -> -MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
+                () -> -MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
+                () -> -MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
                 driver.leftBumper()::getAsBoolean,
                 driver.rightBumper()::getAsBoolean,
                 driver.povRight()::getAsBoolean
