@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.LimelightHelpers;
 import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.alignment.AlignToReef;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -78,19 +79,21 @@ public class RobotContainer {
         // driver left y to move forward/backward
         // driver left x to strafe left/right
         // driver right x to rotate left/right
-        // driver left bumper press to x lock
-        // driver right bumper press to drive robot-centric
+        // driver pov right press to x lock
         swerve.setDefaultCommand(
             new TeleopSwerve(
                 swerve,
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
-                () -> driver.leftBumper().getAsBoolean(),
-                () -> driver.rightBumper().getAsBoolean(),
                 () -> driver.povRight().getAsBoolean()
             )
         );
+
+        // driver left bumper to align to reef on the left
+        // driver right bumper to align to reef on the right
+        driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_ALIGMENT_POSITION, swerve));
+        driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_ALIGMENT_POSITION, swerve));
 
         // driver pov up to swap from fast mode to slow mode
         driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());

@@ -54,7 +54,7 @@ public class SwerveModule {
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID, "cani");
         mDriveMotor.getConfigurator().apply(Robot.ctreConfigs.swerveDriveFXConfig);
         mDriveMotor.getConfigurator().setPosition(0.0);
-        mDriveMotor.setSafetyEnabled(true);
+        mDriveMotor.setSafetyEnabled(false);
 
         currentState = new SwerveModuleState(
             Conversions.RPSToMPS(mDriveMotor.getVelocity().getValueAsDouble(), Constants.SwerveConstants.wheelCircumference), 

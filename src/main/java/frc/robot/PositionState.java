@@ -7,6 +7,7 @@ public class PositionState {
     private double x;
     private double y;
     private double yaw;
+    private String perferredCameraName;
 
     /**
      * Constructor for PositionState.
@@ -14,10 +15,11 @@ public class PositionState {
      * @param y The y position in meters.
      * @param yaw The yaw in degrees.
      */
-    public PositionState(double x, double y, double yaw) {
+    public PositionState(double x, double y, double yaw, String perferredCameraName) {
         this.x = x;
         this.y = y;
         this.yaw = yaw;
+        this.perferredCameraName = perferredCameraName;
     }
 
     /**
@@ -50,6 +52,10 @@ public class PositionState {
      */
     public double getYaw() {
         return yaw;
+    }
+
+    public String getPerferredCameraName() {
+        return perferredCameraName;
     }
     
 }

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.NessieState;
 import frc.robot.PositionState;
 
@@ -36,10 +37,10 @@ public class StateMachine extends SubsystemBase {
     "COAST", -1, -1, -1);
 
   public static final PositionState LEFT_ALIGMENT_POSITION = new PositionState(
-    -0.197, 0.253, -2.22);
+    -0.197, 0.253, -2.22, Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
 
   public static final PositionState RIGHT_ALIGMENT_POSITION = new PositionState(
-    0.150, .262, .745);
+    0.150, .262, .745, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
 
   private NessieState currentState;
 
