@@ -47,6 +47,8 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putData("Elevator/Set Coast Mode", setCoastCommand());
     SmartDashboard.putData("Elevator/Reset Position", resetPositionCommand());
 
+    resetPosition();
+
     System.out.println("Elevator subsystem initialized");
   }
 
