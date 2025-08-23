@@ -33,8 +33,8 @@ public class Elevator extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.ElevatorConstants.FORWARD_LIMIT;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.ElevatorConstants.REVERSE_LIMIT;
  

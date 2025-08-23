@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NessieState;
+import frc.robot.PositionState;
 
 public class StateMachine extends SubsystemBase {
 
@@ -33,6 +34,12 @@ public class StateMachine extends SubsystemBase {
     "Algae Process", 0, 0, 0);
   public static final NessieState COAST = new NessieState(
     "COAST", -1, -1, -1);
+
+  public static final PositionState LEFT_ALIGMENT_POSITION = new PositionState(
+    -0.18, 0.257, .27);
+
+  public static final PositionState RIGHT_ALIGMENT_POSITION = new PositionState(
+    0.1845, -.562, 0);
 
   private NessieState currentState;
 

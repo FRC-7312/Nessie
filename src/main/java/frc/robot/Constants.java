@@ -32,13 +32,13 @@ public final class Constants {
 
     public static final class VisionConstants {
 
-        public static final String LEFT_LIMELIGHT_NAME = null;
-        public static final String RIGHT_LIMELIGHT_NAME = null;
+        public static final String LEFT_LIMELIGHT_NAME = "limelight-left";
+        public static final String RIGHT_LIMELIGHT_NAME = "limelight-right";
 
         public static final PIDConstants translationPID = new PIDConstants(
-            0.1,
-            0,
-            0
+            1,
+            .1,
+            .001
         );
         public static final PIDConstants rotationPID = new PIDConstants(
             0.1,

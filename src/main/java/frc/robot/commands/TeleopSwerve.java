@@ -1,24 +1,18 @@
 package frc.robot.commands;
 
-import frc.lib.LimelightHelpers;
-import frc.lib.LimelightHelpers.LimelightTarget_Fiducial;
-import frc.robot.Constants;
-import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Vision;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.lib.LimelightHelpers;
+import frc.robot.Constants;
+import frc.robot.PositionState;
+import frc.robot.subsystems.StateMachine;
+import frc.robot.subsystems.Swerve;
 
 
 public class TeleopSwerve extends Command {    
@@ -30,6 +24,24 @@ public class TeleopSwerve extends Command {
     private BooleanSupplier alignLeftSupplier;
     private BooleanSupplier alignRightSupplier;
     private BooleanSupplier lockSup;
+
+    private PIDController xController = new PIDController(
+        Constants.VisionConstants.translationPID.kP, 
+        Constants.VisionConstants.translationPID.kI, 
+        Constants.VisionConstants.translationPID.kD
+    );
+
+    private PIDController yController = new PIDController(
+        Constants.VisionConstants.translationPID.kP, 
+        Constants.VisionConstants.translationPID.kI, 
+        Constants.VisionConstants.translationPID.kD
+    );
+
+    private PIDController rotationController = new PIDController(
+        Constants.VisionConstants.rotationPID.kP, 
+        Constants.VisionConstants.rotationPID.kI, 
+        Constants.VisionConstants.rotationPID.kD
+    );
 
     public TeleopSwerve(Swerve swerve, 
                         DoubleSupplier translationSup, 
@@ -50,59 +62,86 @@ public class TeleopSwerve extends Command {
     }
 
     @Override
-    public void initialize() {}
-
-    @Override
     public void execute() {
-        double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.ControlConstants.STICK_DEADBAND);
-        double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.ControlConstants.STICK_DEADBAND);
-        double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.ControlConstants.STICK_DEADBAND);
-        double closestTagID;
+        double[] leftBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
+        double[] rightBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
 
-        if(alignLeftSupplier.getAsBoolean() || alignRightSupplier.getAsBoolean()) {
-            LimelightTarget_Fiducial closestTag = 
-                LimelightHelpers.getClosestFiducial(Constants.VisionConstants.LEFT_LIMELIGHT_NAME, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
-            if (closestTag != null) { // has valid tag
-                PPHolonomicDriveController controller = new PPHolonomicDriveController(
-                    Constants.VisionConstants.translationPID, 
-                    Constants.VisionConstants.rotationPID
-                );
-                closestTagID = closestTag.fiducialID;
-                double leftID = LimelightHelpers.getFiducialID(Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
-                double rightID = LimelightHelpers.getFiducialID(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
-                double[] leftBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
-                double[] rightBotPose = LimelightHelpers.getBotPose_TargetSpace(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
-                double x = -1, y = -1, yaw = -1;
+        boolean didSomething = false;
 
-                if(leftID == closestTagID && rightID == closestTagID) {
-                    x = (leftBotPose[0] + rightBotPose[0]) / 2.0;
-                    y = (leftBotPose[1] + rightBotPose[1]) / 2.0;
-                    yaw = (leftBotPose[5] + rightBotPose[5]) / 2.0;
-                }else if(leftID == closestTagID) {
-                    x = leftBotPose[0];
-                    y = leftBotPose[1];
-                    yaw = leftBotPose[5];
-                }else if(rightID == closestTagID) {
-                    x = rightBotPose[0];
-                    y = rightBotPose[1];
-                    yaw = rightBotPose[5];
-                }
+        // Priority 2: Left/Right lock alignment
+        if (alignLeftSupplier.getAsBoolean() || alignRightSupplier.getAsBoolean()) {
 
-                PathPlannerTrajectoryState targetState = new PathPlannerTrajectoryState();
-                targetState.pose = alignLeftSupplier.getAsBoolean() ? 
-                    new Pose2d(new Translation2d(Vision.Left.getX(), Vision.Left.getY()), new Rotation2d(Units.degreesToRadians(Vision.Left.getYaw()))) : 
-                    new Pose2d(new Translation2d(Vision.Right.getX(), Vision.Right.getY()), new Rotation2d(Units.degreesToRadians(Vision.Right.getYaw())));
+            System.out.println("Align Suppliers Triggered");
 
-                ChassisSpeeds speeds = controller.calculateRobotRelativeSpeeds(
-                    new Pose2d(new Translation2d(x, y), new Rotation2d(yaw)), 
-                    targetState
-                );
+            double x = -999, y = -999, yaw = -999;
 
-                swerve.driveRobotRelative(speeds);
+            if (LimelightHelpers.getTV(Constants.VisionConstants.LEFT_LIMELIGHT_NAME) && LimelightHelpers.getTV(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME)) {
+                x = (leftBotPose[0] + rightBotPose[0]) / 2.0;
+                y = (leftBotPose[2] + rightBotPose[2]) / 2.0;
+                yaw = (leftBotPose[4] + rightBotPose[4]) / 2.0;
+                SmartDashboard.putNumber("Vision/Average/X", (leftBotPose[0] + rightBotPose[0]) / 2.0);
+                SmartDashboard.putNumber("Vision/Average/Y", (leftBotPose[2] + rightBotPose[2]) / 2.0);
+                SmartDashboard.putNumber("Vision/Average/Yaw", (leftBotPose[4] + rightBotPose[4]) / 2.0);
+            } else if (LimelightHelpers.getTV(Constants.VisionConstants.LEFT_LIMELIGHT_NAME)) {
+                x = leftBotPose[0];
+                y = leftBotPose[2];
+                yaw = leftBotPose[4];
+                SmartDashboard.putNumber("Vision/Left/X", leftBotPose[0]);
+                SmartDashboard.putNumber("Vision/Left/Y", leftBotPose[2]);
+                SmartDashboard.putNumber("Vision/Left/Yaw", leftBotPose[4]);
+            } else if (LimelightHelpers.getTV(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME)) {
+                x = rightBotPose[0];
+                y = rightBotPose[2];
+                yaw = rightBotPose[4];
+                SmartDashboard.putNumber("Vision/Right/X", rightBotPose[0]);
+                SmartDashboard.putNumber("Vision/Right/Y", rightBotPose[2]);
+                SmartDashboard.putNumber("Vision/Right/Yaw", rightBotPose[4]);
+            } else {
+                return;
             }
-        }else if(lockSup.getAsBoolean()) {
+
+            PositionState targetPosition = alignLeftSupplier.getAsBoolean() 
+                ? StateMachine.LEFT_ALIGMENT_POSITION 
+                : StateMachine.RIGHT_ALIGMENT_POSITION;
+
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current X Measurement", x);
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current Y Measurement", y);
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current Yaw Measurement", yaw);
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target X", targetPosition.getX());
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target Y", targetPosition.getY());
+            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target Yaw", targetPosition.getYaw());
+
+            swerve.drive(
+                new Translation2d(xController.calculate(y, targetPosition.getY()), -yController.calculate(x, targetPosition.getX())), 
+                -rotationController.calculate(yaw, targetPosition.getYaw()), 
+                false, 
+                true
+            );
+            didSomething = true;
+
+        }
+
+        // Priority 2: X lock
+        if (!didSomething && lockSup.getAsBoolean()) {
             swerve.setX();
-        }else {
+            didSomething = true;
+        }
+
+        // Priority 3: Normal drive
+        if (!didSomething) {
+            double translationVal = MathUtil.applyDeadband(
+                translationSup.getAsDouble(), 
+                Constants.ControlConstants.STICK_DEADBAND
+            );
+            double strafeVal = MathUtil.applyDeadband(
+                strafeSup.getAsDouble(), 
+                Constants.ControlConstants.STICK_DEADBAND
+            );
+            double rotationVal = MathUtil.applyDeadband(
+                rotationSup.getAsDouble(), 
+                Constants.ControlConstants.STICK_DEADBAND
+            );
+
             swerve.drive(
                 new Translation2d(translationVal, strafeVal).times(Constants.SwerveConstants.maxSpeed), 
                 rotationVal * Constants.SwerveConstants.maxAngularVelocity, 
@@ -111,4 +150,5 @@ public class TeleopSwerve extends Command {
             );
         }
     }
+
 }
