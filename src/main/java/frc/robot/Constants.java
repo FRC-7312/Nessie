@@ -36,12 +36,12 @@ public final class Constants {
         public static final String RIGHT_LIMELIGHT_NAME = "limelight-right";
 
         public static final PIDConstants translationPID = new PIDConstants(
-            1,
+            2,
             .1,
-            .001
+            .01
         );
         public static final PIDConstants rotationPID = new PIDConstants(
-            0.1,
+            0.15738,
             0,
             0
         );
@@ -80,9 +80,9 @@ public final class Constants {
 
     public static final class EndEffectorConstants {
         public static final double CURRENT_LIMIT = 40;
-        public static final double CORAL_INTAKE_VOLTAGE = -5;
-        public static final double CORAL_SHOOT_VOLTAGE = 4;
-        public static final double CORAL_HOLD_VOLTAGE = -.25;
+        public static final double CORAL_INTAKE_VOLTAGE = 5;
+        public static final double CORAL_SHOOT_VOLTAGE = -7;
+        public static final double CORAL_HOLD_VOLTAGE = .25;
         public static final double ALGAE_INTAKE_VOLTAGE = 3;
         public static final double ALGAE_SHOOT_VOLTAGE = -12;
         public static final double ALGAE_HOLD_VOLTAGE = 1;
@@ -93,7 +93,7 @@ public final class Constants {
         public static final double P = 1;
         public static final double I = .1;
         public static final double D = 0;
-        public static final double FORWARD_LIMIT = 48.98;
+        public static final double FORWARD_LIMIT = 51;
         public static final double REVERSE_LIMIT = 0;
     }
 

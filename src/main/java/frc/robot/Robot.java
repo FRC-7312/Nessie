@@ -2,7 +2,6 @@ package frc.robot;
 
 import com.reduxrobotics.canand.CanandEventLoop;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -56,18 +55,18 @@ public class Robot extends TimedRobot {
     
     double[] positions = LimelightHelpers.getBotPose_TargetSpace("limelight-left");
     if(positions.length > 0) {
-      SmartDashboard.putNumber("Alignment/Left/X", positions[2]);
-      SmartDashboard.putNumber("Alignment/Left/Y", positions[0]);
-      SmartDashboard.putNumber("Alignment/Left/Rotation", positions[4]);
+      SmartDashboard.putNumber("Alignment/Left/X", positions[0]);
+      SmartDashboard.putNumber("Alignment/Left/Y", positions[1]);
+      SmartDashboard.putNumber("Alignment/Left/Yaw", positions[4]);
       SmartDashboard.putBoolean("Alignment/Left/Valid Tag", LimelightHelpers.getTV("limelight-left"));
     }
 
     positions = LimelightHelpers.getBotPose_TargetSpace("limelight-right");
     if(positions.length > 0) {
-      SmartDashboard.putNumber("Alignment/Right x", positions[2]);
-      SmartDashboard.putNumber("Alignment/Right y", positions[0]);
-      SmartDashboard.putNumber("Alignment/Right rot", positions[4]);
-      SmartDashboard.putBoolean("Alignment/Right Valid Tag", LimelightHelpers.getTV("limelight-right"));
+      SmartDashboard.putNumber("Alignment/Right/X", positions[0]);
+      SmartDashboard.putNumber("Alignment/Right/Y", positions[1]);
+      SmartDashboard.putNumber("Alignment/Right/Yaw", positions[4]);
+      SmartDashboard.putBoolean("Alignment/Right/Valid Tag", LimelightHelpers.getTV("limelight-right"));
     }
 
     if(LimelightHelpers.getTV("limelight-right") || LimelightHelpers.getTV("limelight-right")) {
@@ -76,7 +75,6 @@ public class Robot extends TimedRobot {
       revBlinkin.redSolidColor();
     }
 
-    SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
   }
 
   @Override

@@ -9,21 +9,21 @@ import frc.robot.PositionState;
 public class StateMachine extends SubsystemBase {
 
   public static final NessieState STOW = new NessieState( // done
-    "Stow", 14.21, 30, 0);
+    "Stow", 14.21, 0, 0);
   public static final NessieState L1 = new NessieState(
     "L1", 0, 0, 0);
   public static final NessieState L2 = new NessieState( // done
-    "L2", 0, 0, 0);
+    "L2", 35.43, 0, 0);
   public static final NessieState L3 = new NessieState( // done
-    "L3", 0, 0, 0);
+    "L3", 45.58, 0, 0);
   public static final NessieState L4 = new NessieState( // done
-    "L4", 0, 0, 0);
+    "L4", 42.7, 50.40, 0);
   public static final NessieState INTAKE = new NessieState(
-    "Intake", 0, 0, 0);
+    "Intake", 2.07, 0, 0);
   public static final NessieState INTAKE_CLEARANCE = new NessieState(
     "Intake Clearance", 0, 1.86, 0);
   public static final NessieState ALGAE_TAXI= new NessieState(
-    "Algae Stow", 0, 0, 0);
+    "Algae Stow", 49.15, 0, 0);
   public static final NessieState ALGAE_SHOOT = new NessieState(
     "Algae Shoot", 0, 5.2027880859375, 0);
   public static final NessieState ALGAE_INTAKE_LOW = new NessieState(
@@ -36,10 +36,10 @@ public class StateMachine extends SubsystemBase {
     "COAST", -1, -1, -1);
 
   public static final PositionState LEFT_ALIGMENT_POSITION = new PositionState(
-    -0.18, 0.257, .27);
+    -0.197, 0.253, -2.22);
 
   public static final PositionState RIGHT_ALIGMENT_POSITION = new PositionState(
-    0.1845, -.562, 0);
+    0.150, .262, .745);
 
   private NessieState currentState;
 

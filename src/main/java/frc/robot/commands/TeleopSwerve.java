@@ -112,7 +112,9 @@ public class TeleopSwerve extends Command {
             SmartDashboard.putNumber("Vision/Alignment Setpoint/Target Yaw", targetPosition.getYaw());
 
             swerve.drive(
-                new Translation2d(xController.calculate(y, targetPosition.getY()), -yController.calculate(x, targetPosition.getX())), 
+                new Translation2d(MathUtil.applyDeadband(
+                    translationSup.getAsDouble(), 
+                    Constants.ControlConstants.STICK_DEADBAND) , -yController.calculate(x, targetPosition.getX())), 
                 -rotationController.calculate(yaw, targetPosition.getYaw()), 
                 false, 
                 true

@@ -141,7 +141,9 @@ public class RobotContainer {
         operator.leftTrigger().onTrue(stateMachine.requestStateCommand(StateMachine.STOW));
 
         // operator right trigger to shoot coral
-        operator.rightTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_SHOOT_VOLTAGE));
+        operator.rightTrigger().onTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_SHOOT_VOLTAGE));
+        operator.rightTrigger().onFalse(endEffector.setVoltageCommand(0));
+
 
     }
 
