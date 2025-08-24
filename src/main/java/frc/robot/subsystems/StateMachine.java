@@ -36,11 +36,17 @@ public class StateMachine extends SubsystemBase {
   public static final NessieState COAST = new NessieState(
     "COAST", -1, -1, -1);
 
-  public static final PositionState LEFT_ALIGMENT_POSITION = new PositionState(
+  public static final PositionState LEFT_FRONT = new PositionState(
     -0.197, 0.253, -2.22, Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
 
-  public static final PositionState RIGHT_ALIGMENT_POSITION = new PositionState(
+  public static final PositionState RIGHT_FORWARD = new PositionState(
     0.150, .262, .745, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
+
+  public static final PositionState LEFT_BACK = new PositionState(
+    0, 0, 0, Constants.VisionConstants.LEFT_LIMELIGHT_NAME); // tune
+
+  public static final PositionState RIGHT_BACK = new PositionState(
+    0, 0, 0, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME); // tune
 
   private NessieState currentState;
 

@@ -92,8 +92,8 @@ public class RobotContainer {
 
         // driver left bumper to align to reef on the left
         // driver right bumper to align to reef on the right
-        driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_ALIGMENT_POSITION, swerve));
-        driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_ALIGMENT_POSITION, swerve));
+        driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
+        driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
         // driver pov up to swap from fast mode to slow mode
         driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
