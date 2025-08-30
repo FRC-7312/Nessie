@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -174,6 +175,16 @@ public class Swerve extends SubsystemBase {
     public void resetModulesToAbsolute(){
         for(SwerveModule mod : swerveModules){
             mod.resetToAbsolute();
+        }
+    }
+
+    public void autoHeadingFix(){
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            if(alliance.get() == DriverStation.Alliance.Red){
+                double angle = getHeading().getDegrees() > 0? getHeading().getDegrees()-180 : getHeading().getDegrees()+180 ;
+                setHeading(new Rotation2d(Units.degreesToRadians(angle)));
+            }
         }
     }
 
