@@ -74,7 +74,7 @@ public class Approach extends Command {
 
   private void doDrive(double[] robotInTargetSpace) {
     swerve.drive(
-      new Translation2d(0, yController.calculate(robotInTargetSpace[1])), 
+      new Translation2d(yController.calculate(robotInTargetSpace[1]), 0), 
       0, 
       false, 
       true

@@ -104,7 +104,7 @@ public class AlignToReef extends Command {
 
   private void doDrive(double[] robotInTargetSpace) {
     swerve.drive(
-      new Translation2d(-xController.calculate(robotInTargetSpace[0], targetPosition.getX()), 0), 
+      new Translation2d(0, -xController.calculate(robotInTargetSpace[0], targetPosition.getX())), 
       -yawController.calculate(robotInTargetSpace[4], targetPosition.getYaw()), 
       false, 
       true

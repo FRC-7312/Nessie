@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.LimelightHelpers;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.alignment.AlignToReef;
+import frc.robot.commands.alignment.Approach;
+import frc.robot.commands.alignment.FullScore;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -65,6 +67,13 @@ public class RobotContainer {
             stateMachine.requestStateCommand(StateMachine.STOW)
         ));
 
+        SmartDashboard.putData("Align to Reef Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
+        SmartDashboard.putData("Align to Reef Left ", new AlignToReef(StateMachine.LEFT_FRONT, swerve));
+
+        
+        SmartDashboard.putData("Approach Left", new Approach(swerve, StateMachine.LEFT_FRONT));
+        SmartDashboard.putData("Approach Right", new Approach(swerve, StateMachine.RIGHT_FORWARD));
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);
 
@@ -79,13 +88,16 @@ public class RobotContainer {
         // driver left y to move forward/backward
         // driver left x to strafe left/right
         // driver right x to rotate left/right
-        // driver pov right press to x lock
+        // driver left bumper press to x lock
+        // driver right bumper press to drive robot-centric
         swerve.setDefaultCommand(
             new TeleopSwerve(
                 swerve,
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
+                () -> driver.leftBumper().getAsBoolean(),
+                () -> driver.rightBumper().getAsBoolean(),
                 () -> driver.povRight().getAsBoolean()
             )
         );
@@ -124,10 +136,10 @@ public class RobotContainer {
         // operator b to request L2 state
         // operator y to request L3 state
         // operator x to request L4 state
-        operator.a().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L1)));
-        operator.b().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L2)));
-        operator.y().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L3)));
-        operator.x().onTrue(new InstantCommand(() -> stateMachine.requestState(StateMachine.L4)));
+        operator.a().onTrue(stateMachine.requestStateCommand(StateMachine.L1));
+        operator.b().onTrue(stateMachine.requestStateCommand(StateMachine.L2));
+        operator.y().onTrue(stateMachine.requestStateCommand(StateMachine.L3));
+        operator.x().onTrue(stateMachine.requestStateCommand(StateMachine.L4));
 
         // operator left bumper press to intake coral
         operator.leftBumper().onTrue(
