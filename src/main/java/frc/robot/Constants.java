@@ -3,7 +3,6 @@ package frc.robot;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -53,16 +52,6 @@ public final class Constants {
         public static final double DONT_SEE_TAG_WAIT_TIME = .1;
         public static final double POSE_VALIDATION_TIME = .3;
 
-        public static final PIDConstants translationPID = new PIDConstants(
-            2,
-            .1,
-            .01
-        );
-        public static final PIDConstants rotationPID = new PIDConstants(
-            0.15738,
-            0,
-            0
-        );
     }
 
     public static final class IntakePivotConstants {

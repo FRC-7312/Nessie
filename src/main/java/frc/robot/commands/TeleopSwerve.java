@@ -25,22 +25,16 @@ public class TeleopSwerve extends Command {
     private BooleanSupplier alignRightSupplier;
     private BooleanSupplier lockSup;
 
-    private PIDController xController = new PIDController(
-        Constants.VisionConstants.translationPID.kP, 
-        Constants.VisionConstants.translationPID.kI, 
-        Constants.VisionConstants.translationPID.kD
-    );
-
     private PIDController yController = new PIDController(
-        Constants.VisionConstants.translationPID.kP, 
-        Constants.VisionConstants.translationPID.kI, 
-        Constants.VisionConstants.translationPID.kD
+        Constants.VisionConstants.Y_P,
+        Constants.VisionConstants.Y_I,
+        Constants.VisionConstants.Y_D
     );
 
     private PIDController rotationController = new PIDController(
-        Constants.VisionConstants.rotationPID.kP, 
-        Constants.VisionConstants.rotationPID.kI, 
-        Constants.VisionConstants.rotationPID.kD
+        Constants.VisionConstants.YAW_P,
+        Constants.VisionConstants.YAW_I,
+        Constants.VisionConstants.YAW_D
     );
 
     public TeleopSwerve(Swerve swerve, 

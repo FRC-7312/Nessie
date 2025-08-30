@@ -26,11 +26,11 @@ public class StateMachine extends SubsystemBase {
   public static final NessieState ALGAE_TAXI= new NessieState(
     "Algae Stow", 49.15, 0, 0);
   public static final NessieState ALGAE_SHOOT = new NessieState(
-    "Algae Shoot", 0, 5.2027880859375, 0);
+    "Algae Shoot", 0, 0, 0);
   public static final NessieState ALGAE_INTAKE_LOW = new NessieState(
     "Algae Intake Low", 0, 0, 0);
   public static final NessieState ALGAE_INTAKE_HIGH = new NessieState(
-    "Algae Intake High", 0, 1.41, 0);
+    "Algae Intake High", 0, 0, 0);
   public static final NessieState ALGAE_PROCESS = new NessieState(
     "Algae Process", 0, 0, 0);
   public static final NessieState COAST = new NessieState(

@@ -18,7 +18,6 @@ import frc.lib.LimelightHelpers;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.alignment.AlignToReef;
 import frc.robot.commands.alignment.Approach;
-import frc.robot.commands.alignment.FullScore;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;

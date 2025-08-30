@@ -18,6 +18,7 @@ public class AlignToReef extends Command {
 
   private double tagID;
   private Timer dontSeeTagTimer;
+  private Timer poseValidationTimer;
 
   public AlignToReef(PositionState targetstate, Swerve swerve) {
 
@@ -44,6 +45,8 @@ public class AlignToReef extends Command {
   public void initialize() {
     this.dontSeeTagTimer = new Timer();
     this.dontSeeTagTimer.start();
+    this.poseValidationTimer = new Timer();
+    this.poseValidationTimer.start();
 
     tagID = LimelightHelpers.getFiducialID(targetPosition.getPerferredCameraName());
     System.out.println("AlignToReef initialized with tag ID: " + tagID);
@@ -76,6 +79,9 @@ public class AlignToReef extends Command {
     }else {
       swerve.drive(new Translation2d(), 0, true, true);
     }
+    if(!(xController.atSetpoint() && yawController.atSetpoint())) {
+      poseValidationTimer.reset();
+    }
   }
 
   @Override
@@ -90,8 +96,9 @@ public class AlignToReef extends Command {
 
   @Override
   public boolean isFinished() {
-    return this.dontSeeTagTimer.hasElapsed(Constants.VisionConstants.DONT_SEE_TAG_WAIT_TIME) ||
-    (xController.atSetpoint() && yawController.atSetpoint());
+    return 
+      this.dontSeeTagTimer.hasElapsed(Constants.VisionConstants.DONT_SEE_TAG_WAIT_TIME) || 
+      this.poseValidationTimer.hasElapsed(Constants.VisionConstants.POSE_VALIDATION_TIME);
   }
 
   public static double[] averageArrays(double[] a, double[] b) {
