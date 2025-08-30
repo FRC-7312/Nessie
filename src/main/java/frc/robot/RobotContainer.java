@@ -69,9 +69,11 @@ public class RobotContainer {
         SmartDashboard.putData("Align to Reef Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
         SmartDashboard.putData("Align to Reef Left ", new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
-        
         SmartDashboard.putData("Approach Left", new Approach(swerve, StateMachine.LEFT_FRONT));
         SmartDashboard.putData("Approach Right", new Approach(swerve, StateMachine.RIGHT_FORWARD));
+
+        SmartDashboard.putData("Full Align Left", new AlignToReef(StateMachine.LEFT_FRONT, swerve).andThen(new Approach(swerve, StateMachine.LEFT_FRONT)));
+        SmartDashboard.putData("Full Align Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve).andThen(new Approach(swerve, StateMachine.RIGHT_FORWARD)));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);

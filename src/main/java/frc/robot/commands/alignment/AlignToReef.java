@@ -21,7 +21,7 @@ public class AlignToReef extends Command {
   private Timer poseValidationTimer;
 
   public AlignToReef(PositionState targetstate, Swerve swerve) {
-
+  
     xController = new PIDController(
       Constants.VisionConstants.X_P,
       Constants.VisionConstants.X_I,
@@ -50,6 +50,12 @@ public class AlignToReef extends Command {
 
     tagID = LimelightHelpers.getFiducialID(targetPosition.getPerferredCameraName());
     System.out.println("AlignToReef initialized with tag ID: " + tagID);
+    if(tagID != -1) {
+      System.out.println("AlignToReef initialized with tag ID: " + tagID);
+    }else {
+      System.out.println("AlignToReef failed to initialize: " + tagID);
+      end(false);
+    }
   }
 
   @Override
