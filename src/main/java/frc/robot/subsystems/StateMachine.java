@@ -10,7 +10,7 @@ import frc.robot.PositionState;
 public class StateMachine extends SubsystemBase {
 
   public static final NessieState STOW = new NessieState( // done
-    "Stow", 14.21, 0, 0);
+    "Stow", 10.9, 0, 0);
   public static final NessieState L1 = new NessieState(
     "L1", 0, 0, 0);
   public static final NessieState L2 = new NessieState( // done
@@ -25,14 +25,18 @@ public class StateMachine extends SubsystemBase {
     "Intake Clearance", 0, 1.86, 0);
   public static final NessieState ALGAE_TAXI= new NessieState(
     "Algae Stow", 49.15, 0, 0);
-  public static final NessieState ALGAE_SHOOT = new NessieState(
-    "Algae Shoot", 0, 0, 0);
+  public static final NessieState ALGAE_PRE_YEET = new NessieState(
+    "Algae Pre-Yeet", 50.56, 50.91, 0);
+    public static final NessieState ALGAE_YEET = new NessieState(
+    "Algae Yeet", 36.71, 51.49, 0);
   public static final NessieState ALGAE_INTAKE_LOW = new NessieState(
-    "Algae Intake Low", 0, 0, 0);
+    "Algae Intake Low", 19.06, 0, 0);
   public static final NessieState ALGAE_INTAKE_HIGH = new NessieState(
-    "Algae Intake High", 0, 0, 0);
+    "Algae Intake High", 23.79, 12.56, 0);
   public static final NessieState ALGAE_PROCESS = new NessieState(
     "Algae Process", 0, 0, 0);
+  public static final NessieState ALGAE_LICK = new NessieState(
+    "Algae Lick", 10.7, 0, 0);
   public static final NessieState COAST = new NessieState(
     "COAST", -1, -1, -1);
 

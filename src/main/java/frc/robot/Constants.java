@@ -89,9 +89,9 @@ public final class Constants {
         public static final double CORAL_INTAKE_VOLTAGE = 5;
         public static final double CORAL_SHOOT_VOLTAGE = -7;
         public static final double CORAL_HOLD_VOLTAGE = .25;
-        public static final double ALGAE_INTAKE_VOLTAGE = 3;
-        public static final double ALGAE_SHOOT_VOLTAGE = -12;
-        public static final double ALGAE_HOLD_VOLTAGE = 1;
+        public static final double ALGAE_INTAKE_VOLTAGE = -3;
+        public static final double ALGAE_SHOOT_VOLTAGE = 7;
+        public static final double ALGAE_HOLD_VOLTAGE = -1;
     }
 
     public static final class ElevatorConstants {

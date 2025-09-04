@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib.LimelightHelpers;
 import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.AlgaeYeet.YeetAlgae;
 import frc.robot.commands.alignment.AlignToReef;
 import frc.robot.commands.alignment.Approach;
 import frc.robot.subsystems.Arm;
@@ -69,11 +70,11 @@ public class RobotContainer {
         SmartDashboard.putData("Align to Reef Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
         SmartDashboard.putData("Align to Reef Left ", new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
-        SmartDashboard.putData("Approach Left", new Approach(swerve, StateMachine.LEFT_FRONT));
-        SmartDashboard.putData("Approach Right", new Approach(swerve, StateMachine.RIGHT_FORWARD));
+        SmartDashboard.putData("Approach Left", new Approach(StateMachine.LEFT_FRONT, swerve));
+        SmartDashboard.putData("Approach Right", new Approach(StateMachine.RIGHT_FORWARD, swerve));
 
-        SmartDashboard.putData("Full Align Left", new AlignToReef(StateMachine.LEFT_FRONT, swerve).andThen(new Approach(swerve, StateMachine.LEFT_FRONT)));
-        SmartDashboard.putData("Full Align Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve).andThen(new Approach(swerve, StateMachine.RIGHT_FORWARD)));
+        SmartDashboard.putData("Full Align Left", new AlignToReef(StateMachine.LEFT_FRONT, swerve).andThen(new Approach(StateMachine.LEFT_FRONT, swerve)));
+        SmartDashboard.putData("Full Align Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve).andThen(new Approach(StateMachine.RIGHT_FORWARD, swerve)));
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);
@@ -103,17 +104,19 @@ public class RobotContainer {
             )
         );
 
-        // driver left bumper to align to reef on the left
-        // driver right bumper to align to reef on the right
-        driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
-        driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_FRONT, swerve));
+        // // driver left bumper to align to reef on the left
+        // // driver right bumper to align to reef on the right
+        // driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
+        // driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
         // driver pov up to swap from fast mode to slow mode
         driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
         // driver pov right to zero heading for swerve
         driver.povDown().onTrue(swerve.zeroHeading());
         
-
+        driver.rightStick().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_LICK));
+        driver.rightStick().onFalse(stateMachine.requestStateCommand(StateMachine.STOW));
+    
         // driver left trigger to intake algae, and hold it when released
         driver.leftTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_INTAKE_VOLTAGE));
         driver.leftTrigger().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_HOLD_VOLTAGE));
@@ -126,10 +129,10 @@ public class RobotContainer {
         // driver b to request algae intake low state
         // driver y to request algae intake high state
         // driver x to request algae process state
-        driver.a().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_TAXI));
-        driver.b().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_LOW));
+        driver.a().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_LOW));
+        driver.b().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_TAXI));
         driver.y().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_HIGH));
-        driver.x().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_PROCESS));
+        driver.x().onTrue(new YeetAlgae(stateMachine, endEffector));
 
         /* Operator */
 

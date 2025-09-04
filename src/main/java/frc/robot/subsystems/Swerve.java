@@ -35,7 +35,7 @@ public class Swerve extends SubsystemBase {
         odometry = new Field2d();
         gyro = new Pigeon2(Constants.SwerveConstants.pigeonID, "cani");
         gyro.getConfigurator().apply(new Pigeon2Configuration());
-        gyro.setYaw(180);
+        gyro.setYaw(0);
         speedMultiplier = 1.0;
 
         swerveModules = new SwerveModule[] {
