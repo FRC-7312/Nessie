@@ -24,6 +24,8 @@ public class TeleopSwerve extends Command {
     private BooleanSupplier alignLeftSupplier;
     private BooleanSupplier alignRightSupplier;
     private BooleanSupplier lockSup;
+    private boolean previouslyAttemptedAlign = false;
+    private boolean previouslyFlashed = false;
 
     private PIDController yController = new PIDController(
         Constants.VisionConstants.Y_P,
@@ -64,6 +66,12 @@ public class TeleopSwerve extends Command {
 
         if (alignLeftSupplier.getAsBoolean() || alignRightSupplier.getAsBoolean()) {
 
+            if(!previouslyAttemptedAlign) {
+                RevBlinkin.getInstance().setPattern(RevBlinkin.BlinkinPattern.BREATH_RED);
+            }
+
+            previouslyAttemptedAlign = true;
+
             System.out.println("Align Suppliers Triggered");
 
             double x = -999, yaw = -999;
@@ -94,12 +102,19 @@ public class TeleopSwerve extends Command {
                 true
             );
 
-            if(yController.atSetpoint() && yawController.atSetpoint()) {
-                RevBlinkin.getInstance().flashColor(RevBlinkin.BlinkinPattern.GREEN, .01 , RevBlinkin.BlinkinPattern.RED);
+            if(!previouslyFlashed && yController.atSetpoint() && yawController.atSetpoint()) {
+                RevBlinkin.getInstance().flashAlternate(
+                    RevBlinkin.BlinkinPattern.GREEN, RevBlinkin.BlinkinPattern.BLACK, .1, .5, RevBlinkin.BlinkinPattern.RED);
+                previouslyFlashed = true;
             }
 
             didSomething = true;
 
+        }
+
+        if(!didSomething) {
+            previouslyAttemptedAlign = false;
+            previouslyFlashed = false;
         }
 
         if (!didSomething && lockSup.getAsBoolean()) {
