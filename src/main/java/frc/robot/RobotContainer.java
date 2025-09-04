@@ -44,13 +44,16 @@ public class RobotContainer {
 
     public RobotContainer() {
 
+        Command bump = stateMachine.requestStateCommand(StateMachine.INTAKE_BUMP).andThen(new WaitCommand(0.2))
+            .andThen(stateMachine.requestStateCommand(StateMachine.STOW));
+
         /* Command Configuration */
         NamedCommands.registerCommand("Stow Position", stateMachine.requestStateCommand(StateMachine.STOW));
-        NamedCommands.registerCommand("Coast Position", stateMachine.requestStateCommand(StateMachine.COAST));
         NamedCommands.registerCommand("L1 Position", stateMachine.requestStateCommand(StateMachine.L1));
         NamedCommands.registerCommand("L2 Position", stateMachine.requestStateCommand(StateMachine.L2));
         NamedCommands.registerCommand("L3 Position", stateMachine.requestStateCommand(StateMachine.L3));
         NamedCommands.registerCommand("L4 Position", stateMachine.requestStateCommand(StateMachine.L4));
+        NamedCommands.registerCommand("Bump", bump);
         NamedCommands.registerCommand("Intake", new SequentialCommandGroup(
             stateMachine.requestStateCommand(StateMachine.STOW),
             new WaitCommand(.2),
@@ -146,14 +149,14 @@ public class RobotContainer {
 
         // operator left bumper press to intake coral
         operator.leftBumper().onTrue(
-            new InstantCommand(() -> stateMachine.requestState(StateMachine.STOW))
-            .andThen(new WaitCommand(.2)).andThen(() -> stateMachine.requestState(StateMachine.INTAKE))
-        );
+            stateMachine.requestStateCommand(StateMachine.STOW)
+            .andThen(new WaitCommand(.2)).andThen(stateMachine.requestStateCommand(StateMachine.INTAKE)
+        ));
         operator.leftBumper().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE));
         operator.leftBumper().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE)
             .andThen(stateMachine.requestStateCommand(StateMachine.INTAKE_CLEARANCE))
-            .andThen(new WaitCommand(.2)).andThen(() -> stateMachine.requestState(StateMachine.STOW))
-        );
+            .andThen(new WaitCommand(.2)).andThen((stateMachine.requestStateCommand(StateMachine.STOW))
+        ));
 
         // operator left trigger to stow
         operator.leftTrigger().onTrue(stateMachine.requestStateCommand(StateMachine.STOW));

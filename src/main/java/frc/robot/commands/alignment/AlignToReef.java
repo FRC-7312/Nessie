@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.LimelightHelpers;
 import frc.robot.Constants;
 import frc.robot.PositionState;
+import frc.robot.subsystems.RevBlinkin;
 import frc.robot.subsystems.Swerve;
 
 public class AlignToReef extends Command {
@@ -52,9 +53,10 @@ public class AlignToReef extends Command {
     System.out.println("AlignToReef initialized with tag ID: " + tagID);
     if(tagID != -1) {
       System.out.println("AlignToReef initialized with tag ID: " + tagID);
+      RevBlinkin.getInstance().setPattern(RevBlinkin.BlinkinPattern.BREATH_GRAY);;
     }else {
       System.out.println("AlignToReef failed to initialize: " + tagID);
-      end(false);
+      end(true);
     }
   }
 
@@ -95,8 +97,22 @@ public class AlignToReef extends Command {
     swerve.drive(new Translation2d(), 0, true, true);
     if (interrupted) {
       System.out.println("AlignToReef command interrupted.");
+      RevBlinkin.getInstance().flashAlternate(
+        RevBlinkin.BlinkinPattern.RED,
+        RevBlinkin.BlinkinPattern.BLACK,
+        0.1,
+        0.5,
+        RevBlinkin.BlinkinPattern.RED
+      );
     } else {
       System.out.println("AlignToReef command completed successfully.");
+      RevBlinkin.getInstance().flashAlternate(
+        RevBlinkin.BlinkinPattern.GREEN,
+        RevBlinkin.BlinkinPattern.BLACK,
+        0.1,
+        0.5,
+        RevBlinkin.BlinkinPattern.RED
+      );
     }
   }
 

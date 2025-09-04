@@ -1,419 +1,220 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class RevBlinkin extends SubsystemBase {
-  Spark blinkin;
 
-  public RevBlinkin() {
-    blinkin = new Spark(Constants.ID.BLINKIN_ID);
-    System.out.println("RevBlinkin subsystem initialized");
+  private final Spark blinkin;
+  private static RevBlinkin instance;
+
+  private double currentPattern = 0.99; // default solid black/off
+  private double flashEndTime = -1;
+  private BlinkinPattern previousPattern = BlinkinPattern.BLACK;
+
+  private double altFlashEndTime = -1;
+  private double altFlashInterval = 0.1; // default toggle speed
+  private double nextToggleTime = -1;
+  private BlinkinPattern altColor1 = BlinkinPattern.BLACK;
+  private BlinkinPattern altColor2 = BlinkinPattern.BLACK;
+  private BlinkinPattern altEndColor = BlinkinPattern.BLACK;
+  private boolean showingFirst = true;
+
+  public enum BlinkinPattern {
+    // Fixed Palette Patterns
+    RAINBOW_RAINBOW_PALETTE(-0.99),
+    RAINBOW_PARTY_PALETTE(-0.97),
+    RAINBOW_OCEAN_PALETTE(-0.95),
+    RAINBOW_LAVA_PALETTE(-0.93),
+    RAINBOW_FOREST_PALETTE(-0.91),
+    RAINBOW_WITH_GLITTER(-0.89),
+    CONFETTI(-0.87),
+    SHOT_RED(-0.85),
+    SHOT_BLUE(-0.83),
+    SHOT_WHITE(-0.81),
+    SINELON_RAINBOW_PALETTE(-0.79),
+    SINELON_PARTY_PALETTE(-0.77),
+    SINELON_OCEAN_PALETTE(-0.75),
+    SINELON_LAVA_PALETTE(-0.73),
+    SINELON_FOREST_PALETTE(-0.71),
+    BPM_RAINBOW_PALETTE(-0.69),
+    BPM_PARTY_PALETTE(-0.67),
+    BPM_OCEAN_PALETTE(-0.65),
+    BPM_LAVA_PALETTE(-0.63),
+    BPM_FOREST_PALETTE(-0.61),
+    FIRE_MEDIUM(-0.59),
+    FIRE_LARGE(-0.57),
+    TWINKLES_RAINBOW(-0.55),
+    TWINKLES_PARTY(-0.53),
+    TWINKLES_OCEAN(-0.51),
+    TWINKLES_LAVA(-0.49),
+    TWINKLES_FOREST(-0.47),
+    COLOR_WAVES_RAINBOW(-0.45),
+    COLOR_WAVES_PARTY(-0.43),
+    COLOR_WAVES_OCEAN(-0.41),
+    COLOR_WAVES_LAVA(-0.39),
+    COLOR_WAVES_FOREST(-0.37),
+    LARSON_SCANNER_RED(-0.35),
+    LARSON_SCANNER_GRAY(-0.33),
+    LIGHT_CHASE_RED(-0.31),
+    LIGHT_CHASE_BLUE(-0.29),
+    LIGHT_CHASE_GRAY(-0.27),
+    HEARTBEAT_RED(-0.25),
+    HEARTBEAT_BLUE(-0.23),
+    HEARTBEAT_WHITE(-0.21),
+    HEARTBEAT_GRAY(-0.19),
+    BREATH_RED(-0.17),
+    BREATH_BLUE(-0.15),
+    BREATH_GRAY(-0.13),
+    STROBE_RED(-0.11),
+    STROBE_BLUE(-0.09),
+    STROBE_GOLD(-0.07),
+    STROBE_WHITE(-0.05),
+
+    // Color 1 Patterns
+    C1_END_TO_END_BLEND_TO_BLACK(-0.03),
+    C1_LARSON_SCANNER(-0.01),
+    C1_LIGHT_CHASE(0.01),
+    C1_HEARTBEAT_SLOW(0.03),
+    C1_HEARTBEAT_MEDIUM(0.05),
+    C1_HEARTBEAT_FAST(0.07),
+    C1_BREATH_SLOW(0.09),
+    C1_BREATH_FAST(0.11),
+    C1_SHOT(0.13),
+    C1_STROBE(0.15),
+
+    // Color 2 Patterns
+    C2_END_TO_END_BLEND_TO_BLACK(0.17),
+    C2_LARSON_SCANNER(0.19),
+    C2_LIGHT_CHASE(0.21),
+    C2_HEARTBEAT_SLOW(0.23),
+    C2_HEARTBEAT_MEDIUM(0.25),
+    C2_HEARTBEAT_FAST(0.27),
+    C2_BREATH_SLOW(0.29),
+    C2_BREATH_FAST(0.31),
+    C2_SHOT(0.33),
+    C2_STROBE(0.35),
+
+    // Color 1 & 2 Patterns
+    SPARKLE_C1_ON_C2(0.37),
+    SPARKLE_C2_ON_C1(0.39),
+    COLOR_GRADIENT_C1_TO_C2(0.41),
+    BPM_C1_AND_C2(0.43),
+    END_TO_END_BLEND_C1_TO_C2(0.45),
+    END_TO_END_BLEND(0.47),
+    SOLID_C1_AND_C2(0.49),
+    TWINKLES_C1_AND_C2(0.51),
+    COLOR_WAVES_C1_AND_C2(0.53),
+    SINELON_C1_AND_C2(0.55),
+
+    // Solid Colors
+    HOT_PINK(0.57),
+    DARK_RED(0.59),
+    RED(0.61),
+    RED_ORANGE(0.63),
+    ORANGE(0.65),
+    GOLD(0.67),
+    YELLOW(0.69),
+    LAWN_GREEN(0.71),
+    LIME(0.73),
+    DARK_GREEN(0.75),
+    GREEN(0.77),
+    BLUE_GREEN(0.79),
+    AQUA(0.81),
+    SKY_BLUE(0.83),
+    DARK_BLUE(0.85),
+    BLUE(0.87),
+    BLUE_VIOLET(0.89),
+    VIOLET(0.91),
+    WHITE(0.93),
+    GRAY(0.95),
+    DARK_GRAY(0.97),
+    BLACK(0.99);
+
+    public final double pwmValue;
+
+    BlinkinPattern(double value) {
+      this.pwmValue = value;
+    }
   }
 
-  public void rainbowPalettePattern() { //Rainbow, Rainbow Palette Pattern Density Speed Brightness
-    blinkin.set(-0.99);
-    }
-
-    public void partyPalettePattern() { //Rainbow, Party Palette Pattern Density Speed Brightness
-    blinkin.set(-0.97);
-    }
-
-    public void oceanPalettePattern() { //Rainbow, Ocean Palette Pattern Density Speed Brightness
-    blinkin.set(-0.95);
-    }
-
-    public void lavPalettePattern() { //Rainbow, Lav Palette Pattern Density Speed Brightness
-    blinkin.set(-0.93);
-    }
-
-    public void forestPalettePattern() { //Rainbow, Forest Palette Pattern Density Speed Brightness
-    blinkin.set(-0.91);
-    }
-
-    public void rainbowWithGlitterPattern() { //Rainbow with Glitter Pattern Density Speed Brightness
-    blinkin.set(-0.89);
-    }
-
-    public void confettiPattern() { //Confetti Pattern Density Speed Brightness
-    blinkin.set(-0.87);
-    }
-
-    public void shotRedPattern() { //Shot, Red - - Brightness
-    blinkin.set(-0.85);
-    }
-
-    public void shotBluePattern() { //Shot, Blue - - Brightness
-    blinkin.set(-0.83);
-    }
-
-    public void shotWhitePattern() { //Shot, White - - Brightness
-    blinkin.set(-0.81);
-    }
-
-    public void sinelonRainbowPalettePattern() { //Sinelon, Rainbow Palette Pattern Density Speed Brightness
-    blinkin.set(-0.79);
-    }
-
-    public void sinelonPartyPalettePattern() { //Sinelon, Party Palette Pattern Density Speed Brightness
-    blinkin.set(-0.77);
-    }
-
-    public void sinelonOceanPalettePattern() { //Sinelon, Ocean Palette Pattern Density Speed Brightness
-    blinkin.set(-0.75);
-    }
-
-    public void sinelonLavaPalettePattern() { //Sinelon, Lava Palette Pattern Density Speed Brightness
-    blinkin.set(-0.73);
-    }
-
-    public void sinelonForestPalettePattern() { //Sinelon, Forest Palette Pattern Density Speed Brightness
-    blinkin.set(-0.71);
-    }
-
-    public void beatsPerMinuteRainbowPalettePattern() { //Beats per Minute, Rainbow Palette Pattern Density Speed Brightness
-    blinkin.set(-0.69);
-    }
-
-    public void beatsPerMinutePartyPalettePattern() { //Beats per Minute, Party Palette Pattern Density Speed Brightness
-    blinkin.set(-0.67);
-    }
-
-    public void beatsPerMinuteOceanPalettePattern() { //Beats per Minute, Ocean Palette Pattern Density Speed Brightness
-    blinkin.set(-0.65);
-    }
-
-    public void beatsPerMinuteLavaPalettePattern() { //Beats per Minute, Lava Palette Pattern Density Speed Brightness
-    blinkin.set(-0.63);
-    }
-
-    public void beatsPerMinuteForestPalettePattern() { //Beats per Minute, Forest Palette Pattern Density Speed Brightness
-    blinkin.set(-0.61);
-    }
-
-    public void fireMediumPattern() { //Fire, Medium - - Brightness
-    blinkin.set(-0.59);
-    }
-
-    public void fireLargePattern() { //Fire, Large - - Brightness
-    blinkin.set(-0.57);
-    }
-
-    public void twinklesRainbowPalettePattern() { //Twinkles, Rainbow Palette - - Brightness
-    blinkin.set(-0.55);
-    }
-
-    public void twinklesPartyPalettePattern() { //Twinkles, Party Palette - - Brightness
-    blinkin.set(-0.53);
-    }
-
-    public void twinklesOceanPalettePattern() { //Twinkles, Ocean Palette - - Brightness
-    blinkin.set(-0.51);
-    }
-
-    public void twinklesLavaPalettePattern() { //Twinkles, Lava Palette - - Brightness
-    blinkin.set(-0.49);
-    }
-
-    public void twinklesForestPalettePattern() { //Twinkles, Forest Palette - - Brightness
-    blinkin.set(-0.47);
-    }
-
-    public void colorWavesRainbowPalettePattern() { //Color Waves, Rainbow Palette - - Brightness
-    blinkin.set(-0.45);
-    }
-
-    public void colorWavesPartyPalettePattern() { //Color Waves, Party Palette - - Brightness
-    blinkin.set(-0.43);
-    }
-
-    public void colorWavesOceanPalettePattern() { //Color Waves, Ocean Palette - - Brightness
-    blinkin.set(-0.41);
-    }
-
-    public void colorWavesLavaPalettePattern() { //Color Waves, Lava Palette - - Brightness
-    blinkin.set(-0.39);
-    }
-
-    public void colorWavesForestPalettePattern() { //Color Waves, Forest Palette - - Brightness
-    blinkin.set(-0.37);
-    }
-
-    public void larsonScannerRedPattern() { //Larson Scanner, Red Pattern Width Speed Brightness
-    blinkin.set(-0.35);
-    }
-
-    public void larsonScannerGrayPattern() { //Larson Scanner, Gray Pattern Width Speed Brightness
-    blinkin.set(-0.33);
-    }
-
-    public void lightChaseRedPattern() { //Light Chase, Red Dimming Speed Brightness
-    blinkin.set(-0.31);
-    }
-
-    public void lightChaseBluePattern() { //Light Chase, Blue Dimming Speed Brightness
-    blinkin.set(-0.29);
-    }
-
-    public void lightChaseGrayPattern() { //Light Chase, Gray Dimming Speed Brightness
-    blinkin.set(-0.27);
-    }
-
-    public void heartbeatRedPattern() { //Heartbeat, Red - - Brightness
-    blinkin.set(-0.25);
-    }
-
-    public void heartbeatBluePattern() { //Heartbeat, Blue - - Brightness
-    blinkin.set(-0.23);
-    }
-
-    public void heartbeatWhitePattern() { //Heartbeat, White - - Brightness
-    blinkin.set(-0.21);
-    }
-
-    public void heartbeatGrayPattern() { //Heartbeat, Gray - - Brightness
-    blinkin.set(-0.19);
-    }
-
-    public void breathRedPattern() { //Breath, Red - - Brightness
-    blinkin.set(-0.17);
-    }
-
-    public void breathBluePattern() { //Breath, Blue - - Brightness
-    blinkin.set(-0.15);
-    }
-
-    public void breathGrayPattern() { //Breath, Gray - - Brightness
-    blinkin.set(-0.13);
-    }
-
-    public void strobeRedPattern() { //Strobe, Red - - Brightness
-    blinkin.set(-0.11);
-    }
-
-    public void strobeBluePattern() { //Strobe, Blue - - Brightness
-    blinkin.set(-0.09);
-    }
-
-    public void strobeGoldPattern() { //Strobe, Gold - - Brightness
-    blinkin.set(-0.07);
-    }
-
-    public void strobeWhitePattern() { //Strobe, White - - Brightness
-    blinkin.set(-0.05);
-    }
-
-    public void endToEndBlendToBlackColor1Pattern() { //End to End Blend to Black - - Brightness Color 1
-    blinkin.set(-0.03);
-    }
-
-    public void larsonScannerColor1Pattern() { //Larson Scanner Pattern Width Speed Brightness Color 1
-    blinkin.set(-0.01);
-    }
-
-    public void lightChaseColor1Pattern() { //Light Chase Dimming Speed Brightness Color 1
-    blinkin.set(0.01);
-    }
-
-    public void heartbeatSlowColor1Pattern() { //Heartbeat Slow - - Brightness Color 1
-    blinkin.set(0.03);
-    }
-
-    public void heartbeatMediumColor1Pattern() { //Heartbeat Medium - - Brightness Color 1
-    blinkin.set(0.05);
-    }
-
-    public void heartbeatFastColor1Pattern() { //Heartbeat Fast - - Brightness Color 1
-    blinkin.set(0.07);
-    }
-
-    public void breathSlowColor1Pattern() { //Breath Slow - - Brightness Color 1
-    blinkin.set(0.09);
-    }
-
-    public void breathFastColor1Pattern() { //Breath Fast - - Brightness Color 1
-    blinkin.set(0.11);
-    }
-
-    public void shotColor1Pattern() { //Shot - - Brightness Color 1
-    blinkin.set(0.13); //Corrected value from 0.13 to 0.15 based on table and next value.
-    }
-
-    public void strobeColor1Pattern() { //Strobe - - Brightness Color 1
-    blinkin.set(0.15); //Corrected value from 0.15 to 0.17 based on table and next value.
-    }
-
-    public void endToEndBlendToBlackColor2Pattern() { //End to End Blend to Black - - Brightness Color 2
-    blinkin.set(0.17);
-    }
-
-    public void larsonScannerColor2Pattern() { //Larson Scanner Pattern Width Speed Brightness Color 2
-    blinkin.set(0.19);
-    }
-
-    public void lightChaseColor2Pattern() { //Light Chase Dimming Speed Brightness Color 2
-    blinkin.set(0.21);
-    }
-
-    public void heartbeatSlowColor2Pattern() { //Heartbeat Slow - - Brightness Color 2
-    blinkin.set(0.23);
-    }
-
-    public void heartbeatMediumColor2Pattern() { //Heartbeat Medium - - Brightness Color 2
-    blinkin.set(0.25);
-    }
-
-    public void heartbeatFastColor2Pattern() { //Heartbeat Fast - - Brightness Color 2
-    blinkin.set(0.27);
-    }
-
-    public void breathSlowColor2Pattern() { //Breath Slow - - Brightness Color 2
-    blinkin.set(0.29);
-    }
-
-    public void breathFastColor2Pattern() { //Breath Fast - - Brightness Color 2
-    blinkin.set(0.31);
-    }
-
-    public void shotColor2Pattern() { //Shot - - Brightness Color 2
-    blinkin.set(0.33);
-    }
-
-    public void strobeColor2Pattern() { //Strobe - - Brightness Color 2
-    blinkin.set(0.35);
-    }
-
-    public void sparkleColor1OnColor2Pattern() { //Sparkle, Color 1 on Color 2 - - Brightness Color 1 and 2
-    blinkin.set(0.37);
-    }
-
-    public void sparkleColor2OnColor1Pattern() { //Sparkle, Color 2 on Color 1 - - Brightness Color 1 and 2
-    blinkin.set(0.39);
-    }
-
-    public void colorGradientColor1And2Pattern() { //Color Gradient, Color 1 and 2 - - Brightness Color 1 and 2
-    blinkin.set(0.41);
-    }
-
-    public void beatsPerMinuteColor1And2Pattern() { //Beats per Minute, Color 1 and 2 Pattern Density Speed Brightness Color 1 and 2
-    blinkin.set(0.43);
-    }
-
-    public void endToEndBlendColor1To2Pattern() { //End to End Blend, Color 1 to 2 - - Brightness Color 1 and 2
-    blinkin.set(0.45);
-    }
-
-    public void endToEndBlendColor1And2Pattern() { //End to End Blend - - Brightness Color 1 and 2
-    blinkin.set(0.47);
-    }
-
-    public void color1AndColor2NoBlendingPattern() { //Color 1 and Color 2 no blending (Setup Pattern) - - Brightness Color 1 and 2
-    blinkin.set(0.49);
-    }
-
-    public void twinklesColor1And2Pattern() { //Twinkles, Color 1 and 2 - - Brightness Color 1 and 2
-    blinkin.set(0.51);
-    }
-
-    public void colorWavesColor1And2Pattern() { //Color Waves, Color 1 and 2 - - Brightness Color 1 and 2
-    blinkin.set(0.53);
-    }
-
-    public void sinelonColor1And2Pattern() { //Sinelon, Color 1 and 2 Pattern Density Speed Brightness Color 1 and 2
-    blinkin.set(0.55);
-    }
-
-    public void hotPinkSolidColor() { //Solid Colors Hot Pink - - Brightness
-    blinkin.set(0.57);
-    }
-
-    public void darkRedSolidColor() { //Solid Colors Dark red - - Brightness
-    blinkin.set(0.59);
-    }
-
-    public void redSolidColor() { //Solid Colors Red - - Brightness
-    blinkin.set(0.61);
-    }
-
-    public void redOrangeSolidColor() { //Solid Colors Red Orange - - Brightness
-    blinkin.set(0.63);
-    }
-
-    public void orangeSolidColor() { //Solid Colors Orange - - Brightness
-    blinkin.set(0.65);
-    }
-
-    public void goldSolidColor() { //Solid Colors Gold - - Brightness
-    blinkin.set(0.67);
-    }
-
-    public void yellowSolidColor() { //Solid Colors Yellow - - Brightness
-    blinkin.set(0.69);
-    }
-
-    public void lawnGreenSolidColor() { //Solid Colors Lawn Green - - Brightness
-    blinkin.set(0.71);
-    }
-
-    public void limeSolidColor() { //Solid Colors Lime - - Brightness
-    blinkin.set(0.73);
-    }
-
-    public void darkGreenSolidColor() { //Solid Colors Dark Green - - Brightness
-    blinkin.set(0.75);
-    }
-
-    public void greenSolidColor() { //Solid Colors Green - - Brightness
-    blinkin.set(0.77);
-    }
-
-    public void blueGreenSolidColor() { //Solid Colors Blue Green - - Brightness
-    blinkin.set(0.79);
-    }
-
-    public void aquaSolidColor() { //Solid Colors Aqua - - Brightness
-    blinkin.set(0.81);
-    }
-
-    public void skyBlueSolidColor() { //Solid Colors Sky Blue - - Brightness
-    blinkin.set(0.83);
-    }
-
-    public void darkBlueSolidColor() { //Solid Colors Dark Blue - - Brightness
-    blinkin.set(0.85);
-    }
-
-    public void blueSolidColor() { //Solid Colors Blue - - Brightness
-    blinkin.set(0.87);
-    }
-
-    public void blueVioletSolidColor() { //Solid Colors Blue Violet - - Brightness
-    blinkin.set(0.89);
-    }
-
-    public void violetSolidColor() { //Solid Colors Violet - - Brightness
-    blinkin.set(0.91);
-    }
-
-    public void whiteSolidColor() { //Solid Colors White - - Brightness
-    blinkin.set(0.93);
-    }
-
-    public void graySolidColor() { //Solid Colors Gray - - Brightness
-    blinkin.set(0.95);
-    }
-
-    public void darkGraySolidColor() { //Solid Colors Dark Gray - - Brightness
-    blinkin.set(0.97);
-    }
-
-    public void blackSolidColor() { //Solid Colors Black - - Brightness
-    blinkin.set(0.99);
-    }
+  private RevBlinkin() {
+    blinkin = new Spark(Constants.ID.BLINKIN_ID);
+    System.out.println("RevBlinkin subsystem initialized");
+    setPattern(BlinkinPattern.RED);
+  }
+
+  /**
+   * Flash between two colors for a given duration, then end on a color.
+   * @param color1 First flash color
+   * @param color2 Second flash color
+   * @param intervalSeconds How long each color is shown before toggling
+   * @param durationSeconds Total flash time
+   * @param endColor The color/pattern to show when finished
+   */
+  public void flashAlternate(BlinkinPattern color1, BlinkinPattern color2,
+                             double intervalSeconds, double durationSeconds,
+                             BlinkinPattern endColor) {
+    altColor1 = color1;
+    altColor2 = color2;
+    altEndColor = endColor;
+    altFlashInterval = intervalSeconds;
+    altFlashEndTime = Timer.getFPGATimestamp() + durationSeconds;
+    nextToggleTime = Timer.getFPGATimestamp() + altFlashInterval;
+    showingFirst = true;
+    setPattern(altColor1);
+  }
+
+  public static RevBlinkin getInstance() {
+    if (instance == null) {
+      instance = new RevBlinkin();
+    }
+    return instance;
+  }
+
+  public void setPattern(BlinkinPattern pattern) {
+    blinkin.set(pattern.pwmValue);
+    currentPattern = pattern.pwmValue;
+  }
+
+  public void flashColor(BlinkinPattern flashPattern, double durationSeconds, BlinkinPattern endPattern) {
+    setPattern(flashPattern);
+    flashEndTime = Timer.getFPGATimestamp() + durationSeconds;
+    previousPattern = endPattern; // store where we should end
+  }
+
+  public BlinkinPattern getPattern() {
+    for (BlinkinPattern p : BlinkinPattern.values()) {
+      if (p.pwmValue == currentPattern) return p;
+    }
+    return BlinkinPattern.BLACK;
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    double now = Timer.getFPGATimestamp();
+
+    // One-shot flash
+    if (flashEndTime > 0 && now >= flashEndTime) {
+      setPattern(previousPattern);
+      flashEndTime = -1;
+    }
+
+    // Alternating flash
+    if (altFlashEndTime > 0) {
+      if (now >= altFlashEndTime) {
+        // Done flashing, set final end color
+        setPattern(altEndColor);
+        altFlashEndTime = -1;
+      } else if (now >= nextToggleTime) {
+        // Toggle between colors
+        showingFirst = !showingFirst;
+        setPattern(showingFirst ? altColor1 : altColor2);
+        nextToggleTime = now + altFlashInterval;
+      }
+    }
   }
+
 }

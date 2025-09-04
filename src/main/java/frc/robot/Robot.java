@@ -4,12 +4,9 @@ import com.reduxrobotics.canand.CanandEventLoop;
 
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.Elastic;
-import frc.lib.Elastic.Notification;
 import frc.lib.LimelightHelpers;
 import frc.robot.subsystems.RevBlinkin;
 
@@ -18,68 +15,25 @@ public class Robot extends TimedRobot {
   public static final CTREConfigs ctreConfigs = new CTREConfigs();
   private Command auto;
   private RobotContainer robotContainer;
-  private double batteryLowStartTime = -1;
-  public static RevBlinkin revBlinkin = new RevBlinkin();
 
   @Override
   public void robotInit() {
     CanandEventLoop.getInstance();
     robotContainer = new RobotContainer();
-    revBlinkin.redSolidColor();
-    SmartDashboard.putBoolean("Alignment/Valid Tag", false);
+    RevBlinkin.getInstance().setPattern(RevBlinkin.BlinkinPattern.RED);
   }
 
   @Override
   public void robotPeriodic() {       
     CommandScheduler.getInstance().run();
-    if (RobotController.getBatteryVoltage() < Constants.NotificationConstants.BATTERY_LOW_VOLTAGE) {
-      if (batteryLowStartTime == -1) {
-          batteryLowStartTime = Timer.getFPGATimestamp();
-      }
-      if (Timer.getFPGATimestamp() - batteryLowStartTime >= Constants.NotificationConstants.BATTERY_LOW_DURATION) {
-          Elastic.sendNotification(new Notification(
-              Elastic.Notification.NotificationLevel.WARNING,
-              "Battery Voltage Low",
-              "Battery Voltage is below " + 
-              Constants.NotificationConstants.BATTERY_LOW_VOLTAGE + 
-              "V for " + Constants.NotificationConstants.BATTERY_LOW_DURATION + " seconds"));
-          batteryLowStartTime = -1;
-      }
-    }
-    else {
-        batteryLowStartTime = -1;
-    }
 
     SmartDashboard.putNumber("Voltage", RobotController.getBatteryVoltage());
-    
-    double[] positions = LimelightHelpers.getBotPose_TargetSpace("limelight-left");
-    if(positions.length > 0) {
-      SmartDashboard.putNumber("Alignment/Left/X", positions[0]);
-      SmartDashboard.putNumber("Alignment/Left/Y", positions[1]);
-      SmartDashboard.putNumber("Alignment/Left/Yaw", positions[4]);
-      SmartDashboard.putBoolean("Alignment/Left/Valid Tag", LimelightHelpers.getTV("limelight-left"));
-    }
 
-    positions = LimelightHelpers.getBotPose_TargetSpace("limelight-right");
-    if(positions.length > 0) {
-      SmartDashboard.putNumber("Alignment/Right/X", positions[0]);
-      SmartDashboard.putNumber("Alignment/Right/Y", positions[1]);
-      SmartDashboard.putNumber("Alignment/Right/Yaw", positions[4]);
-      SmartDashboard.putBoolean("Alignment/Right/Valid Tag", LimelightHelpers.getTV("limelight-right"));
-    }
-
-    if(LimelightHelpers.getTV("limelight-right") || LimelightHelpers.getTV("limelight-right")) {
-      revBlinkin.strobeRedPattern();
-    }else {
-      revBlinkin.redSolidColor();
-    }
-
+    updateVisionTelemetry();
   }
 
   @Override
-  public void disabledInit() {
-    revBlinkin.redSolidColor();
-  }
+  public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {}
@@ -98,7 +52,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    revBlinkin.redSolidColor();
     if (auto != null) {
       auto.cancel();
     }
@@ -114,4 +67,22 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {}
+
+  private void updateVisionTelemetry() {
+
+    double[] positions = LimelightHelpers.getBotPose_TargetSpace("limelight-left");
+    if(positions.length > 0) {
+      SmartDashboard.putNumber("Vision/Left/X", positions[0]);
+      SmartDashboard.putNumber("Vision/Left/Y", positions[1]);
+      SmartDashboard.putNumber("Vision/Left/Yaw", positions[4]);
+    }
+
+    positions = LimelightHelpers.getBotPose_TargetSpace("limelight-right");
+    if(positions.length > 0) {
+      SmartDashboard.putNumber("Vision/Right/X", positions[0]);
+      SmartDashboard.putNumber("Vision/Right/Y", positions[1]);
+      SmartDashboard.putNumber("Vision/Right/Yaw", positions[4]);
+    }
+
+  }
 }

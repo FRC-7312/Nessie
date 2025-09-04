@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.LimelightHelpers;
 import frc.robot.Constants;
 import frc.robot.PositionState;
+import frc.robot.subsystems.RevBlinkin;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
 
@@ -30,7 +31,7 @@ public class TeleopSwerve extends Command {
         Constants.VisionConstants.Y_D
     );
 
-    private PIDController rotationController = new PIDController(
+    private PIDController yawController = new PIDController(
         Constants.VisionConstants.YAW_P,
         Constants.VisionConstants.YAW_I,
         Constants.VisionConstants.YAW_D
@@ -88,10 +89,15 @@ public class TeleopSwerve extends Command {
                 new Translation2d(MathUtil.applyDeadband(
                     translationSup.getAsDouble(), 
                     Constants.ControlConstants.STICK_DEADBAND) , -yController.calculate(x, targetPosition.getX())), 
-                -rotationController.calculate(yaw, targetPosition.getYaw()), 
+                -yawController.calculate(yaw, targetPosition.getYaw()), 
                 false, 
                 true
             );
+
+            if(yController.atSetpoint() && yawController.atSetpoint()) {
+                RevBlinkin.getInstance().flashColor(RevBlinkin.BlinkinPattern.GREEN, .01 , RevBlinkin.BlinkinPattern.RED);
+            }
+
             didSomething = true;
 
         }
