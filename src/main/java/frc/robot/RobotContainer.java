@@ -4,8 +4,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,9 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib.LimelightHelpers;
 import frc.robot.commands.TeleopSwerve;
-import frc.robot.commands.AlgaeYeet.YeetAlgae;
 import frc.robot.commands.alignment.AlignToReef;
 import frc.robot.commands.alignment.Approach;
 import frc.robot.subsystems.Arm;
@@ -25,13 +21,11 @@ import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.Swerve;
 
-@SuppressWarnings("unused")
 public class RobotContainer {
 
     /* Controllers */
     public final CommandXboxController driver = new CommandXboxController(Constants.ControlConstants.DRIVER_PORT);
     public final CommandXboxController operator = new CommandXboxController(Constants.ControlConstants.OPERATOR_PORT);
-    private final GenericHID operatorKeypad = new GenericHID(Constants.ControlConstants.OPERATOR_KEYPAD_PORT);
 
     /* Drive Controls */
     private final int leftY = XboxController.Axis.kLeftY.value;
@@ -113,10 +107,7 @@ public class RobotContainer {
         driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
         // driver pov right to zero heading for swerve
         driver.povDown().onTrue(swerve.zeroHeading());
-        
-        driver.rightStick().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_LICK));
-        driver.rightStick().onFalse(stateMachine.requestStateCommand(StateMachine.STOW));
-    
+
         // driver left trigger to intake algae, and hold it when released
         driver.leftTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_INTAKE_VOLTAGE));
         driver.leftTrigger().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_HOLD_VOLTAGE));
@@ -132,7 +123,15 @@ public class RobotContainer {
         driver.a().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_LOW));
         driver.b().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_TAXI));
         driver.y().onTrue(stateMachine.requestStateCommand(StateMachine.ALGAE_INTAKE_HIGH));
-        driver.x().onTrue(new YeetAlgae(stateMachine, endEffector));
+        driver.x().onTrue(new SequentialCommandGroup(
+            stateMachine.requestStateCommand(StateMachine.ALGAE_PRE_YEET),
+            new WaitCommand(.5),
+            stateMachine.requestStateCommand(StateMachine.ALGAE_YEET).andThen(new WaitCommand(.067)),
+            endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_SHOOT_VOLTAGE),
+            new WaitCommand(.5),
+            endEffector.setBrakeCommand(),
+            stateMachine.requestStateCommand(StateMachine.STOW)
+        ));
 
         /* Operator */
 
