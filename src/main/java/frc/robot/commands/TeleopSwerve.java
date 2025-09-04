@@ -6,7 +6,6 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.LimelightHelpers;
 import frc.robot.Constants;
@@ -62,34 +61,21 @@ public class TeleopSwerve extends Command {
 
         boolean didSomething = false;
 
-        // Priority 2: Left/Right lock alignment
         if (alignLeftSupplier.getAsBoolean() || alignRightSupplier.getAsBoolean()) {
 
             System.out.println("Align Suppliers Triggered");
 
-            double x = -999, y = -999, yaw = -999;
+            double x = -999, yaw = -999;
 
             if (LimelightHelpers.getTV(Constants.VisionConstants.LEFT_LIMELIGHT_NAME) && LimelightHelpers.getTV(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME)) {
                 x = (leftBotPose[0] + rightBotPose[0]) / 2.0;
-                y = (leftBotPose[2] + rightBotPose[2]) / 2.0;
                 yaw = (leftBotPose[4] + rightBotPose[4]) / 2.0;
-                SmartDashboard.putNumber("Vision/Average/X", (leftBotPose[0] + rightBotPose[0]) / 2.0);
-                SmartDashboard.putNumber("Vision/Average/Y", (leftBotPose[2] + rightBotPose[2]) / 2.0);
-                SmartDashboard.putNumber("Vision/Average/Yaw", (leftBotPose[4] + rightBotPose[4]) / 2.0);
             } else if (LimelightHelpers.getTV(Constants.VisionConstants.LEFT_LIMELIGHT_NAME)) {
                 x = leftBotPose[0];
-                y = leftBotPose[2];
                 yaw = leftBotPose[4];
-                SmartDashboard.putNumber("Vision/Left/X", leftBotPose[0]);
-                SmartDashboard.putNumber("Vision/Left/Y", leftBotPose[2]);
-                SmartDashboard.putNumber("Vision/Left/Yaw", leftBotPose[4]);
             } else if (LimelightHelpers.getTV(Constants.VisionConstants.RIGHT_LIMELIGHT_NAME)) {
                 x = rightBotPose[0];
-                y = rightBotPose[2];
                 yaw = rightBotPose[4];
-                SmartDashboard.putNumber("Vision/Right/X", rightBotPose[0]);
-                SmartDashboard.putNumber("Vision/Right/Y", rightBotPose[2]);
-                SmartDashboard.putNumber("Vision/Right/Yaw", rightBotPose[4]);
             } else {
                 return;
             }
@@ -97,13 +83,6 @@ public class TeleopSwerve extends Command {
             PositionState targetPosition = alignLeftSupplier.getAsBoolean() 
                 ? StateMachine.LEFT_FRONT 
                 : StateMachine.RIGHT_FORWARD;
-
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current X Measurement", x);
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current Y Measurement", y);
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Current Yaw Measurement", yaw);
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target X", targetPosition.getX());
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target Y", targetPosition.getY());
-            SmartDashboard.putNumber("Vision/Alignment Setpoint/Target Yaw", targetPosition.getYaw());
 
             swerve.drive(
                 new Translation2d(MathUtil.applyDeadband(
@@ -117,13 +96,11 @@ public class TeleopSwerve extends Command {
 
         }
 
-        // Priority 2: X lock
         if (!didSomething && lockSup.getAsBoolean()) {
             swerve.setX();
             didSomething = true;
         }
 
-        // Priority 3: Normal drive
         if (!didSomething) {
             double translationVal = MathUtil.applyDeadband(
                 translationSup.getAsDouble(), 
