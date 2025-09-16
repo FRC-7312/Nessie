@@ -3,7 +3,9 @@ package frc.robot.commands.alignment;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib.LimelightHelpers;
 import frc.robot.Constants;
 import frc.robot.PositionState;
@@ -52,6 +54,9 @@ public class Approach extends Command {
       System.out.println("Approach failed to initialize: " + tagID);
       end(true);
     }
+
+    swerve.setX();
+    new WaitCommand(.2).schedule();
   }
 
   @Override
@@ -81,9 +86,8 @@ public class Approach extends Command {
     }else {
       swerve.drive(new Translation2d(), 0, true, true);
     }
-    if(!yController.atSetpoint()) {
-      poseValidationTimer.reset();
-    }
+
+    SmartDashboard.putBoolean("at set", yController.atSetpoint());
   }
 
   @Override
@@ -113,13 +117,12 @@ public class Approach extends Command {
   @Override
   public boolean isFinished() {
     boolean dontSeeTagTimerElapsed = dontSeeTagTimer.hasElapsed(Constants.VisionConstants.DONT_SEE_TAG_WAIT_TIME);
-    boolean poseValidationElapsed = poseValidationTimer.hasElapsed(Constants.VisionConstants.POSE_VALIDATION_TIME);
 
     if(dontSeeTagTimerElapsed) {
       System.out.println("Dont See Tag Timer Elapsed");
       return true;
-    }else if(poseValidationElapsed) {
-      System.out.println("Pose Validation Timer Elapsed");
+    }
+    if(yController.atSetpoint()) {
       return true;
     }
     return false;
@@ -134,8 +137,10 @@ public class Approach extends Command {
   }
 
   private void doDrive(double[] robotInTargetSpace) {
+    SmartDashboard.putNumber("robotPose1", robotInTargetSpace[1]);
+    SmartDashboard.putNumber("robotPoseM", targetPosition.getY());
     swerve.drive(
-      new Translation2d(yController.calculate(targetPosition.getX(), robotInTargetSpace[0]), 0), 
+      new Translation2d(yController.calculate(robotInTargetSpace[0], targetPosition.getY()), 0), 
       0, 
       false, 
       true

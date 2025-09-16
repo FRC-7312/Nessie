@@ -3,42 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.33176738410596,
-        "y": 4.003207781456953
+        "x": 7.264549180327867,
+        "y": 0.7943135245901636
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.33176738410596,
-        "y": 4.003207781456953
+        "x": 6.137704918032787,
+        "y": 0.7943135245901637
       },
       "isLocked": false,
-      "linkedName": "2"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.101759105960265,
-        "y": 4.003207781456953
+        "x": 6.125717213114753,
+        "y": 0.7943135245901636
       },
       "prevControl": {
-        "x": 2.101759105960265,
-        "y": 4.003207781456953
+        "x": 7.264549180327867,
+        "y": 0.7823258196721316
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "3"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Intake Algae & Hold",
-      "waypointRelativePos": 0.7407792207792216,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -52,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "L4 Algae Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

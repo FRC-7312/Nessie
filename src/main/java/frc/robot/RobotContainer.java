@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -44,7 +43,7 @@ public class RobotContainer {
 
     public RobotContainer() {
 
-        Command bump = stateMachine.requestStateCommand(StateMachine.INTAKE_BUMP).andThen(new WaitCommand(0.2))
+        Command bump = stateMachine.requestStateCommand(StateMachine.INTAKE_BUMP).andThen(new WaitCommand(0.8))
             .andThen(stateMachine.requestStateCommand(StateMachine.STOW));
 
         /* Command Configuration */
@@ -63,7 +62,16 @@ public class RobotContainer {
             endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE),
             stateMachine.requestStateCommand(StateMachine.STOW)
         ));
+        NamedCommands.registerCommand("Right Align", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
+        NamedCommands.registerCommand("Lelft Align", new AlignToReef(StateMachine.LEFT_FRONT, swerve));
+        NamedCommands.registerCommand("Right Approach", new Approach(StateMachine.RIGHT_FORWARD, swerve));
+        NamedCommands.registerCommand("Left Approach", new Approach(StateMachine.LEFT_FRONT, swerve));
+        NamedCommands.registerCommand("Shoot Coral", endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_SHOOT_VOLTAGE)
+            .andThen(new WaitCommand(.25))
+            .andThen(endEffector.setBrakeCommand())
+        );
 
+        SmartDashboard.putData("Bump", bump);
         SmartDashboard.putData("Align to Reef Right", new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
         SmartDashboard.putData("Align to Reef Left ", new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
@@ -95,9 +103,12 @@ public class RobotContainer {
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
                 () -> -MathUtil.applyDeadband(driver.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND),
-                () -> driver.leftBumper().getAsBoolean(),
-                () -> driver.rightBumper().getAsBoolean(),
-                () -> driver.povRight().getAsBoolean()
+                () -> operator.leftBumper().getAsBoolean(),
+                () -> operator.rightBumper().getAsBoolean(),
+                () -> driver.povRight().getAsBoolean(),
+                () -> -MathUtil.applyDeadband(operator.getRawAxis(leftY), Constants.ControlConstants.STICK_DEADBAND),
+                () -> -MathUtil.applyDeadband(operator.getRawAxis(leftX), Constants.ControlConstants.STICK_DEADBAND),
+                () -> -MathUtil.applyDeadband(operator.getRawAxis(rightX), Constants.ControlConstants.STICK_DEADBAND)
             )
         );
 
@@ -106,10 +117,8 @@ public class RobotContainer {
         // driver.rightBumper().onTrue(new AlignToReef(StateMachine.RIGHT_FORWARD, swerve));
         // driver.leftBumper().onTrue(new AlignToReef(StateMachine.LEFT_FRONT, swerve));
 
-        // driver pov up to swap from fast mode to slow mode
-        driver.povUp().onTrue(swerve.changeSpeedMultiplierCommand());
         // driver pov right to zero heading for swerve
-        driver.povDown().onTrue(swerve.zeroHeading());
+        driver.povDown().onTrue(swerve.zeroOdometryHeadingCommand());
 
         // driver left trigger to intake algae, and hold it when released
         driver.leftTrigger().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.ALGAE_INTAKE_VOLTAGE));
@@ -147,29 +156,30 @@ public class RobotContainer {
         operator.y().onTrue(stateMachine.requestStateCommand(StateMachine.L3));
         operator.x().onTrue(stateMachine.requestStateCommand(StateMachine.L4));
 
-        // operator left bumper press to intake coral
-        operator.leftBumper().onTrue(
+        // driver left bumper press to intake coral
+        driver.leftBumper().onTrue(
             stateMachine.requestStateCommand(StateMachine.STOW)
             .andThen(new WaitCommand(.2)).andThen(stateMachine.requestStateCommand(StateMachine.INTAKE)
         ));
-        operator.leftBumper().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE));
-        operator.leftBumper().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE)
+        driver.leftBumper().whileTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE));
+        driver.leftBumper().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE)
             .andThen(stateMachine.requestStateCommand(StateMachine.INTAKE_CLEARANCE))
             .andThen(new WaitCommand(.2)).andThen((stateMachine.requestStateCommand(StateMachine.STOW))
         ));
 
         // operator left trigger to stow
-        operator.leftTrigger().onTrue(stateMachine.requestStateCommand(StateMachine.STOW));
+        operator.leftTrigger().onTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_INTAKE_VOLTAGE));
+        operator.leftTrigger().onFalse(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_HOLD_VOLTAGE));
 
         // operator right trigger to shoot coral
         operator.rightTrigger().onTrue(endEffector.setVoltageCommand(Constants.EndEffectorConstants.CORAL_SHOOT_VOLTAGE));
         operator.rightTrigger().onFalse(endEffector.setVoltageCommand(0));
 
-
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected().andThen(new InstantCommand(() -> swerve.autoHeadingFix()));
+        return autoChooser.getSelected().andThen(swerve.applyTeleopHeadingOffset());
     }
 
 }
+

@@ -7,31 +7,37 @@
         {
           "type": "named",
           "data": {
-            "name": "L1 Position"
+            "name": "Stow Position"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center L1 Path"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "pathName": "Barge Side Source L4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Outtake Coral"
+            "name": "Right Align"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Right Approach"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Coral"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Basic L1",
+  "folder": null,
   "choreoAuto": false
 }

@@ -10,21 +10,21 @@ import frc.robot.PositionState;
 public class StateMachine extends SubsystemBase {
 
   public static final NessieState STOW = new NessieState(
-    "Stow", 10.9, 0, 0);
+    "Stow", 12.27, 0, 0);
   public static final NessieState L1 = new NessieState(
     "L1", 0, 0, 0);
   public static final NessieState L2 = new NessieState(
-    "L2", 35.43, 0, 0);
+    "L2", 33.48, 0, 0);
   public static final NessieState L3 = new NessieState(
-    "L3", 45.58, 0, 0);
+    "L3", 43.99, 0, 0);
   public static final NessieState L4 = new NessieState(
-    "L4", 42.7, 50.40, 0);
+    "L4", 41.06, 51.83, 0);
   public static final NessieState INTAKE = new NessieState(
-    "Intake", 2.07, 0, 0);
+    "Intake", 3.56, 0, 0);
   public static final NessieState INTAKE_CLEARANCE = new NessieState(
     "Intake Clearance", 0, 1.86, 0);
   public static final NessieState INTAKE_BUMP = new NessieState(
-    "Intake Bump", 0, 0, 0);
+    "Intake Bump", -3.2, 0, 0);
   public static final NessieState ALGAE_TAXI= new NessieState(
     "Algae Stow", 49.15, 0, 0);
   public static final NessieState ALGAE_PRE_YEET = new NessieState(
@@ -32,23 +32,19 @@ public class StateMachine extends SubsystemBase {
     public static final NessieState ALGAE_YEET = new NessieState(
     "Algae Yeet", 36.71, 51.49, 0);
   public static final NessieState ALGAE_INTAKE_LOW = new NessieState(
-    "Algae Intake Low", 19.06, 0, 0);
+    "Algae Intake Low", 20.14, 0, 0);
   public static final NessieState ALGAE_INTAKE_HIGH = new NessieState(
-    "Algae Intake High", 23.79, 12.56, 0);
+    "Algae Intake High", 25.57, 12.39, 0);
   public static final NessieState COAST = new NessieState(
     "COAST", -1, -1, -1);
+  public static final NessieState ALGAE_LICK = new NessieState(
+    "Algae Lick", 11.77, 0, 0);
 
   public static final PositionState LEFT_FRONT = new PositionState(
-    -0.197, 0.253, -2.22, Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
+    -0.152, 0.268, -3.364, Constants.VisionConstants.LEFT_LIMELIGHT_NAME);
 
   public static final PositionState RIGHT_FORWARD = new PositionState(
-    0.150, .262, .745, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
-
-  public static final PositionState LEFT_BACK = new PositionState(
-    0, 0, 0, Constants.VisionConstants.LEFT_LIMELIGHT_NAME); // tune
-
-  public static final PositionState RIGHT_BACK = new PositionState(
-    0, 0, 0, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME); // tune
+    0.195, .282, .357, Constants.VisionConstants.RIGHT_LIMELIGHT_NAME);
 
   private NessieState currentState;
 

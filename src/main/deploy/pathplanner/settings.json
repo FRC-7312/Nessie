@@ -2,11 +2,7 @@
   "robotWidth": 0.889,
   "robotLength": 0.889,
   "holonomicMode": true,
-  "pathFolders": [
-    "Basic L1 Paths",
-    "L4 Algae Paths",
-    "Off The Line Paths"
-  ],
+  "pathFolders": [],
   "autoFolders": [
     "Basic L1",
     "L4 Algae Autos",
@@ -23,8 +19,8 @@
   "driveWheelRadius": 0.0508,
   "driveGearing": 5.9,
   "maxDriveSpeed": 5.45,
-  "driveMotorType": "krakenX60FOC",
-  "driveCurrentLimit": 60.0,
+  "driveMotorType": "krakenX60",
+  "driveCurrentLimit": 80.0,
   "wheelCOF": 1.4,
   "flModuleX": 0.273,
   "flModuleY": 0.273,

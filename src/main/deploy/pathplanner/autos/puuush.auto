@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Off The Line Path"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stow Position"
+            "pathName": "push"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Off The Line",
+  "folder": null,
   "choreoAuto": false
 }

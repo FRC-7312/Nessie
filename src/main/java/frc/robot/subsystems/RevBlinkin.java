@@ -177,12 +177,14 @@ public class RevBlinkin extends SubsystemBase {
   public void setPattern(BlinkinPattern pattern) {
     blinkin.set(pattern.pwmValue);
     currentPattern = pattern.pwmValue;
+    System.out.println("Blinkin SetPattern to " + pattern.name());
   }
 
   public void flashColor(BlinkinPattern flashPattern, double durationSeconds, BlinkinPattern endPattern) {
     setPattern(flashPattern);
     flashEndTime = Timer.getFPGATimestamp() + durationSeconds;
     previousPattern = endPattern; // store where we should end
+    System.out.println("Blinkin Flash Color");
   }
 
   public BlinkinPattern getPattern() {

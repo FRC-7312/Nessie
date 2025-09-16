@@ -37,12 +37,12 @@ public final class Constants {
         public static final double X_P = 2.0;
         public static final double X_I = 0.1;
         public static final double X_D = 0.01;
-        public static final double X_TOLERANCE = 0.05;
+        public static final double X_TOLERANCE = 0.5;
         
         public static final double Y_P = 2.0;
         public static final double Y_I = 0.1;
         public static final double Y_D = 0.01;
-        public static final double Y_TOLERANCE = 0.05;
+        public static final double Y_TOLERANCE = 0.17;
 
         public static final double YAW_P = 0.15738;
         public static final double YAW_I = 0.0;
@@ -88,7 +88,7 @@ public final class Constants {
         public static final double CURRENT_LIMIT = 40;
         public static final double CORAL_INTAKE_VOLTAGE = 5;
         public static final double CORAL_SHOOT_VOLTAGE = -7;
-        public static final double CORAL_HOLD_VOLTAGE = .25;
+        public static final double CORAL_HOLD_VOLTAGE = .5;
         public static final double ALGAE_INTAKE_VOLTAGE = -3;
         public static final double ALGAE_SHOOT_VOLTAGE = 7;
         public static final double ALGAE_HOLD_VOLTAGE = -1;

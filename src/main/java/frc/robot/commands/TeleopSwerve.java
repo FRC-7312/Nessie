@@ -21,6 +21,9 @@ public class TeleopSwerve extends Command {
     private DoubleSupplier translationSup;
     private DoubleSupplier strafeSup;
     private DoubleSupplier rotationSup;
+    private DoubleSupplier slowTranslationSup;
+    private DoubleSupplier slowStrafeSup;
+    private DoubleSupplier slowRotationSup;
     private BooleanSupplier alignLeftSupplier;
     private BooleanSupplier alignRightSupplier;
     private BooleanSupplier lockSup;
@@ -45,13 +48,20 @@ public class TeleopSwerve extends Command {
                         DoubleSupplier rotationSup, 
                         BooleanSupplier alignLeftSupplier,
                         BooleanSupplier alignRightSupplier,
-                        BooleanSupplier lockSup) {
+                        BooleanSupplier lockSup,
+                        DoubleSupplier slowTranslationSup,
+                        DoubleSupplier slowStrafeSup,
+                        DoubleSupplier slowRotationSup
+                        ) {
         this.swerve = swerve;
         addRequirements(swerve);
 
         this.translationSup = translationSup;
         this.strafeSup = strafeSup;
         this.rotationSup = rotationSup;
+        this.slowTranslationSup = slowTranslationSup;
+        this.slowStrafeSup = slowStrafeSup;
+        this.slowRotationSup = slowRotationSup;
         this.alignLeftSupplier = alignLeftSupplier;
         this.alignRightSupplier = alignRightSupplier;
         this.lockSup = lockSup;
@@ -96,7 +106,7 @@ public class TeleopSwerve extends Command {
             swerve.drive(
                 new Translation2d(MathUtil.applyDeadband(
                     translationSup.getAsDouble(), 
-                    Constants.ControlConstants.STICK_DEADBAND) , -yController.calculate(x, targetPosition.getX())), 
+                    Constants.ControlConstants.STICK_DEADBAND) + MathUtil.applyDeadband(slowTranslationSup.getAsDouble(), Constants.ControlConstants.STICK_DEADBAND)*.75 , -yController.calculate(x, targetPosition.getX())), 
                 -yawController.calculate(yaw, targetPosition.getYaw()), 
                 false, 
                 true
@@ -123,18 +133,9 @@ public class TeleopSwerve extends Command {
         }
 
         if (!didSomething) {
-            double translationVal = MathUtil.applyDeadband(
-                translationSup.getAsDouble(), 
-                Constants.ControlConstants.STICK_DEADBAND
-            );
-            double strafeVal = MathUtil.applyDeadband(
-                strafeSup.getAsDouble(), 
-                Constants.ControlConstants.STICK_DEADBAND
-            );
-            double rotationVal = MathUtil.applyDeadband(
-                rotationSup.getAsDouble(), 
-                Constants.ControlConstants.STICK_DEADBAND
-            );
+            double translationVal = translationSup.getAsDouble() + slowTranslationSup.getAsDouble() * .25;
+            double strafeVal = strafeSup.getAsDouble() + slowStrafeSup.getAsDouble() * .25;
+            double rotationVal = rotationSup.getAsDouble() + slowRotationSup.getAsDouble() * .25;
 
             swerve.drive(
                 new Translation2d(translationVal, strafeVal).times(Constants.SwerveConstants.maxSpeed), 
